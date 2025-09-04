@@ -1,0 +1,2320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bulb Process Visualization</title>
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <!-- MarkerCluster CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js"></script>
+  <!-- Leaflet and MarkerCluster Plugins -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+  <style>
+    /* ===== Base & Theming Variables ===== */
+    :root {
+      /* Classic Theme (default) */
+      --classic-bg: linear-gradient(135deg, #fceabb, #f8b500);
+      --classic-text: #333;
+      --classic-content-bg: rgba(255,255,255,0.95);
+      --classic-border-gradient: linear-gradient(45deg, #f39c12, #e67e22, #d35400);
+      --classic-primary-btn: #f0a500;
+      --classic-primary-btn-hover: #d18e00;
+      --classic-primary-btn-active: #c27c00;
+      --classic-menu-btn: #f8c471;
+      --classic-menu-btn-hover: #f1c40f;
+      --classic-menu-btn-active: #f39c12;
+      
+      /* Dark Theme */
+      --dark-bg: #222;
+      --dark-text: #f8f8f8;
+      --dark-content-bg: #333;
+      --dark-border-gradient: linear-gradient(45deg, #555, #888, #aaa);
+      
+      /* Blue Theme */
+      --blue-bg: linear-gradient(135deg, #dbe9f4, #8eb0d5);
+      --blue-text: #333;
+      --blue-content-bg: #fff;
+      --blue-border-gradient: linear-gradient(45deg, #6aaddc, #4a90e2, #357ab7);
+      
+      /* Green Theme */
+      --green-bg: linear-gradient(135deg, #d0f0c0, #a3d9a5);
+      --green-text: #2e4d2e;
+      --green-content-bg: #f0fff0;
+      --green-border-gradient: linear-gradient(45deg, #66bb6a, #43a047, #2e7d32);
+      
+      /* Red Theme */
+      --red-bg: linear-gradient(135deg, #ffd1dc, #ff7f7f);
+      --red-text: #660000;
+      --red-content-bg: #fff5f5;
+      --red-border-gradient: linear-gradient(45deg, #ff5252, #ff1744, #d50000);
+    }
+    /* Default to Classic Theme */
+    body.theme-classic {
+      background: var(--classic-bg);
+      color: var(--classic-text);
+    }
+    body.theme-classic .content-wrapper {
+      background: var(--classic-content-bg);
+      border-image: var(--classic-border-gradient) 1;
+    }
+    body.theme-classic #productSwitcher button {
+      background: var(--classic-primary-btn);
+      color: #fff;
+    }
+    body.theme-classic #productSwitcher button:hover {
+      background: var(--classic-primary-btn-hover);
+    }
+    body.theme-classic #productSwitcher button.active {
+      background: var(--classic-primary-btn-active);
+    }
+    body.theme-classic .internal-menu button {
+      background: var(--classic-menu-btn);
+      color: var(--classic-text);
+    }
+    body.theme-classic .internal-menu button:hover {
+      background: var(--classic-menu-btn-hover);
+    }
+    body.theme-classic .internal-menu button.active {
+      background: var(--classic-menu-btn-active);
+      color: #fff;
+    }
+    /* Dark Theme */
+    body.theme-dark {
+      background: var(--dark-bg);
+      color: var(--dark-text);
+    }
+    body.theme-dark .content-wrapper {
+      background: var(--dark-content-bg);
+      border-image: var(--dark-border-gradient) 1;
+    }
+    body.theme-dark #productSwitcher button {
+      background: #444;
+      color: #fff;
+    }
+    body.theme-dark #productSwitcher button:hover {
+      background: #555;
+    }
+    body.theme-dark #productSwitcher button.active {
+      background: #04AA6D;
+    }
+    body.theme-dark .internal-menu button {
+      background: #555;
+      color: var(--dark-text);
+    }
+    body.theme-dark .internal-menu button:hover {
+      background: #666;
+    }
+    body.theme-dark .internal-menu button.active {
+      background: #04AA6D;
+      color: #fff;
+    }
+    /* Blue Theme */
+    body.theme-blue {
+      background: var(--blue-bg);
+      color: var(--blue-text);
+    }
+    body.theme-blue .content-wrapper {
+      background: var(--blue-content-bg);
+      border-image: var(--blue-border-gradient) 1;
+    }
+    body.theme-blue #productSwitcher button {
+      background: #4a90e2;
+      color: #fff;
+    }
+    body.theme-blue #productSwitcher button:hover {
+      background: #357ab7;
+    }
+    body.theme-blue #productSwitcher button.active {
+      background: #2d5f9a;
+    }
+    body.theme-blue .internal-menu button {
+      background: #8eb0d5;
+      color: var(--blue-text);
+    }
+    body.theme-blue .internal-menu button:hover {
+      background: #7aa0c9;
+    }
+    body.theme-blue .internal-menu button.active {
+      background: #4a90e2;
+      color: #fff;
+    }
+    /* Green Theme */
+    body.theme-green {
+      background: var(--green-bg);
+      color: var(--green-text);
+    }
+    body.theme-green .content-wrapper {
+      background: var(--green-content-bg);
+      border-image: var(--green-border-gradient) 1;
+    }
+    body.theme-green #productSwitcher button {
+      background: #66bb6a;
+      color: #fff;
+    }
+    body.theme-green #productSwitcher button:hover {
+      background: #43a047;
+    }
+    body.theme-green #productSwitcher button.active {
+      background: #2e7d32;
+    }
+    body.theme-green .internal-menu button {
+      background: #a5d6a7;
+      color: var(--green-text);
+    }
+    body.theme-green .internal-menu button:hover {
+      background: #81c784;
+    }
+    body.theme-green .internal-menu button.active {
+      background: #66bb6a;
+      color: #fff;
+    }
+    /* Red Theme */
+    body.theme-red {
+      background: var(--red-bg);
+      color: var(--red-text);
+    }
+    body.theme-red .content-wrapper {
+      background: var(--red-content-bg);
+      border-image: var(--red-border-gradient) 1;
+    }
+    body.theme-red #productSwitcher button {
+      background: #ff5252;
+      color: #fff;
+    }
+    body.theme-red #productSwitcher button:hover {
+      background: #ff1744;
+    }
+    body.theme-red #productSwitcher button.active {
+      background: #d50000;
+    }
+    body.theme-red .internal-menu button {
+      background: #ff8a80;
+      color: var(--red-text);
+    }
+    body.theme-red .internal-menu button:hover {
+      background: #ff5252;
+    }
+    body.theme-red .internal-menu button.active {
+      background: #ff1744;
+      color: #fff;
+    }
+    /* ===== Global Styles ===== */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    .content-wrapper {
+      margin: 20px;
+      padding: 20px;
+      border: 5px solid;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    }
+    /* ===== Theme Switcher ===== */
+    #themeSwitcher {
+      text-align: center;
+      margin: 10px;
+    }
+    #themeSwitcher button {
+      background: #888;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      margin: 0 5px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.3s;
+    }
+    #themeSwitcher button:hover {
+      background: #666;
+    }
+    /* ===== Top-Level Product Switcher ===== */
+    #productSwitcher {
+      background-color: #222;
+      padding: 10px;
+      text-align: center;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    #productSwitcher button {
+      padding: 10px 20px;
+      margin: 0 10px;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 4px;
+      transition: background 0.3s;
+    }
+    /* ===== Product Content & Internal Menu ===== */
+    .product-content {
+      display: none;
+      padding: 10px;
+    }
+    .product-content.active {
+      display: block;
+      animation: fadeIn 0.5s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .internal-menu {
+      background-color: #333;
+      overflow: hidden;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+    .internal-menu button {
+      float: left;
+      padding: 10px 15px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+    .tab-content {
+      display: none;
+      padding: 10px;
+      clear: both;
+    }
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.5s ease-in;
+    }
+    /* ===== Map, Legend, and Facility Info ===== */
+    .map-container {
+      width: 100%;
+      height: 500px;
+      border: 2px solid #04AA6D;
+      margin-bottom: 10px;
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .custom-div-icon {
+      background: #ff6600;
+      color: #fff;
+      font-weight: bold;
+      text-align: center;
+      line-height: 30px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      width: 30px;
+      height: 30px;
+    }
+    .legend {
+      background: white;
+      padding: 10px;
+      line-height: 1.5;
+      color: #333;
+      border: 1px solid #ccc;
+      width: 240px;
+      position: absolute;
+      bottom: 30px;
+      left: 10px;
+      z-index: 1000;
+      font-size: 14px;
+      border-radius: 5px;
+    }
+    .facility-info {
+      padding: 10px;
+      background: #fff;
+      border: 1px solid #ccc;
+      margin-top: 10px;
+      border-radius: 5px;
+    }
+    .facility-info img {
+      max-width: 300px;
+      display: block;
+      margin-top: 10px;
+      border: 2px solid #04AA6D;
+      border-radius: 5px;
+    }
+    /* ===== Graphs Container ===== */
+    .graph-container {
+      width: 90%;
+      max-width: 1000px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border: 1px solid #ddd;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 10px;
+    }
+    canvas { max-width: 100%; }
+    /* ===== Parts List ===== */
+    .parts-list {
+      width: 90%;
+      max-width: 1000px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+    }
+    .part-item {
+      padding: 10px;
+      border: 1px solid #ccc;
+      margin-bottom: 5px;
+      cursor: pointer;
+      background: #fafafa;
+      transition: background 0.3s;
+      border-radius: 5px;
+    }
+    .part-item:hover {
+      background: #e0f7e9;
+    }
+    .part-details {
+      display: none;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #04AA6D;
+      background: #e9f7ef;
+      border-radius: 5px;
+    }
+    /* ===== Timeline / History ===== */
+    .timeline {
+      position: relative;
+      max-width: 1200px;
+      margin: 40px auto;
+    }
+    .timeline::after {
+      content: '';
+      position: absolute;
+      width: 6px;
+      background-color: #04AA6D;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      margin-left: -3px;
+    }
+    .timeline-item {
+      padding: 10px 40px;
+      position: relative;
+      background: #fff;
+      width: 50%;
+      box-sizing: border-box;
+      margin-bottom: 20px;
+      border-radius: 5px;
+    }
+    .timeline-item.left { left: 0; }
+    .timeline-item.right { left: 50%; }
+    .timeline-item::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background-color: #fff;
+      border: 4px solid #04AA6D;
+      top: 15px;
+      border-radius: 50%;
+      z-index: 1;
+    }
+    .timeline-item.left::after { right: -10px; }
+    .timeline-item.right::after { left: -10px; }
+    .timeline-item h3 { margin-top: 0; }
+    /* ===== Description Content ===== */
+    .description-content {
+      max-width: 1000px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+    }
+    /* ===== Impact Tab with Dropdowns ===== */
+    .impact-content {
+      max-width: 1000px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+    }
+    .impact-list {
+      list-style: none;
+      padding: 0;
+    }
+    .impact-list li {
+      margin: 10px 0;
+    }
+    .impact-list details {
+      background: #fff8e1;
+      border: 1px solid #fbc02d;
+      border-radius: 5px;
+      padding: 5px 10px;
+      transition: background 0.3s;
+    }
+    .impact-list details[open] {
+      background: #fffde7;
+    }
+    .impact-list summary {
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .impact-dropdown {
+      margin-top: 10px;
+    }
+    /* ===== Other Tab Content ===== */
+    .other-content {
+      max-width: 1000px;
+      margin: 20px auto;
+      background: #e8f5e9;
+      padding: 20px;
+      border: 1px solid #c5e1a5;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body class="theme-classic">
+  <!-- ===== Theme Switcher ===== -->
+  <div id="themeSwitcher">
+    <button onclick="switchTheme('theme-classic')">Classic</button>
+    <button onclick="switchTheme('theme-dark')">Dark</button>
+    <button onclick="switchTheme('theme-blue')">Blue</button>
+    <button onclick="switchTheme('theme-green')">Green</button>
+    <button onclick="switchTheme('theme-red')">Red</button>
+  </div>
+  
+  <div class="content-wrapper">
+    <!-- ===== Top-Level Product Switcher ===== -->
+    <div id="productSwitcher">
+      <button class="product-tab active" data-product="incandescent">Incandescent</button>
+      <button class="product-tab" data-product="led">LED</button>
+      <button class="product-tab" data-product="fluorescent">Fluorescent</button>
+      <button class="product-tab" data-product="halogen">Halogen</button>
+      <button class="product-tab" data-product="other">Other</button>
+    </div>
+
+    <!-- ================== Incandescent Product ================== -->
+    <div id="incandescent" class="product-content active">
+      <div class="internal-menu">
+        <button class="internal-tab-button active" data-tab="incMap">Map</button>
+        <button class="internal-tab-button" data-tab="incGraphs">Graphs</button>
+        <button class="internal-tab-button" data-tab="incParts">Parts List</button>
+        <button class="internal-tab-button" data-tab="incHistory">History</button>
+        <button class="internal-tab-button" data-tab="incDescription">Description</button>
+        <button class="internal-tab-button" data-tab="incImpact">Impact</button>
+      </div>
+      <!-- Map Tab -->
+      <div id="incMap" class="tab-content active">
+        <div id="incMapContainer" class="map-container"></div>
+        <div id="incFacilityInfo" class="facility-info">
+          <h3>Facility Details</h3>
+          <p>Click a numbered marker on the map to view facility information.</p>
+        </div>
+        <div class="legend">
+          <strong>Map Key</strong>
+          <p><span style="color: red;">●</span> Production Sites</p>
+          <p><span style="color: blue;">●</span> Transportation Hubs</p>
+          <p><span style="color: green;">●</span> Assembly Plants</p>
+          <p><span style="color: purple;">●</span> R&amp;D Centers</p>
+          <p><span style="color: orange;">●</span> Small Stops</p>
+        </div>
+      </div>
+      <!-- Graphs Tab -->
+      <div id="incGraphs" class="tab-content">
+        <div class="graph-container">
+          <canvas id="incCostChart"></canvas>
+        </div>
+        <div class="graph-container">
+          <canvas id="incCO2Chart"></canvas>
+        </div>
+        <div class="graph-container">
+          <canvas id="incEnergyChart"></canvas>
+        </div>
+        <div class="graph-container">
+          <canvas id="incProductionChart"></canvas>
+        </div>
+        <div class="graph-container">
+          <canvas id="incRadarChart"></canvas>
+        </div>
+        <div class="graph-container">
+          <canvas id="incEnvChart"></canvas>
+        </div>
+      </div>
+      <!-- Parts List Tab -->
+      <div id="incParts" class="tab-content">
+        <div class="parts-list">
+          <div class="part-item" data-part="filament">
+            <strong>Filament (Tungsten)</strong>
+          </div>
+          <div class="part-details" id="inc-details-filament">
+            <h3>Filament (Tungsten)</h3>
+            <p>The tungsten filament is produced using a high-precision wire drawing process followed by annealing. This is the primary light source and its efficiency directly affects bulb performance.</p>
+            <p><strong>Manufacturing Process:</strong> Tungsten rods are drawn into fine wires, then coiled and heat-treated to optimize brightness and durability.</p>
+            <p><strong>Functionality:</strong> Electrical current heats the filament to incandescence, emitting a continuous spectrum of light.</p>
+            <p><strong>Environmental Impact:</strong> High energy input and specialized furnaces contribute to its carbon footprint.</p>
+          </div>
+          <div class="part-item" data-part="glassbulb">
+            <strong>Glass Bulb</strong>
+          </div>
+          <div class="part-details" id="inc-details-glassbulb">
+            <h3>Glass Bulb</h3>
+            <p>The glass enclosure is created through automated glass blowing and molding. It protects the filament and maintains a controlled atmosphere inside the bulb.</p>
+            <p><strong>Manufacturing Process:</strong> Molten glass is shaped using high‑temperature molds and rapidly cooled to minimize defects.</p>
+            <p><strong>Quality Assurance:</strong> Each bulb is inspected for clarity, uniformity, and strength.</p>
+          </div>
+          <div class="part-item" data-part="base">
+            <strong>Metal Base</strong>
+          </div>
+          <div class="part-details" id="inc-details-base">
+            <h3>Metal Base</h3>
+            <p>The base is fabricated from high‑quality alloys like brass or aluminum. It is precision stamped and machined to ensure a secure connection.</p>
+            <p><strong>Manufacturing Process:</strong> Includes stamping, machining, and anti‑corrosion plating.</p>
+            <p><strong>Functionality:</strong> Completes the electrical circuit and provides physical stability.</p>
+          </div>
+          <div class="part-item" data-part="inertgas">
+            <strong>Inert Gas Fill</strong>
+          </div>
+          <div class="part-details" id="inc-details-inertgas">
+            <h3>Inert Gas Fill</h3>
+            <p>The bulb is filled with high‑purity argon or nitrogen to prevent oxidation of the filament, thus extending its lifespan.</p>
+            <p><strong>Manufacturing Process:</strong> Gas is injected during the sealing process in a controlled environment.</p>
+          </div>
+          <div class="part-item" data-part="electrode">
+            <strong>Electrodes</strong>
+          </div>
+          <div class="part-details" id="inc-details-electrode">
+            <h3>Electrodes</h3>
+            <p>Electrodes are made from refractory metals to withstand extreme temperatures, ensuring reliable electrical contact.</p>
+            <p><strong>Manufacturing Process:</strong> Involves alloying, precision shaping, and heat-treatment.</p>
+          </div>
+          <div class="part-item" data-part="support">
+            <strong>Internal Support Structure</strong>
+          </div>
+          <div class="part-details" id="inc-details-support">
+            <h3>Internal Support Structure</h3>
+            <p>This structure holds the filament in place and distributes heat evenly to prevent sagging and vibration.</p>
+            <p><strong>Manufacturing Process:</strong> Fabricated from high-temperature resistant materials via precision molding.</p>
+          </div>
+          <div class="part-item" data-part="socket">
+            <strong>Socket Connector</strong>
+          </div>
+          <div class="part-details" id="inc-details-socket">
+            <h3>Socket Connector</h3>
+            <p>The socket ensures a secure electrical connection and physical fit with the light fixture. It is often plated for corrosion resistance.</p>
+            <p><strong>Manufacturing Process:</strong> Precision stamping and surface plating are used.</p>
+          </div>
+          <div class="part-item" data-part="coating">
+            <strong>Reflective Coating</strong>
+          </div>
+          <div class="part-details" id="inc-details-coating">
+            <h3>Reflective Coating</h3>
+            <p>An interior reflective coating maximizes light output by redirecting light that would otherwise be absorbed by the bulb’s envelope.</p>
+            <p><strong>Manufacturing Process:</strong> Applied using vapor deposition for uniformity and durability.</p>
+          </div>
+          <div class="part-item" data-part="qc">
+            <strong>Quality Control Data</strong>
+          </div>
+          <div class="part-details" id="inc-details-qc">
+            <h3>Quality Control Data</h3>
+            <p>Each incandescent bulb undergoes rigorous testing for brightness, efficiency, and durability before it is approved for shipment.</p>
+            <p><strong>Testing Methods:</strong> Automated and manual inspections guarantee only bulbs meeting strict standards are released.</p>
+          </div>
+        </div>
+      </div>
+      <!-- History Tab -->
+      <div id="incHistory" class="tab-content">
+        <div class="timeline">
+          <div class="timeline-item left">
+            <h3>1903</h3>
+            <p>In 1903, Thomas Edison introduces the first commercially viable incandescent bulb. These early bulbs were handcrafted and had very short lifespans, yet they revolutionized indoor lighting.</p>
+          </div>
+          <div class="timeline-item right">
+            <h3>1910</h3>
+            <p>By 1910, improvements in tungsten filament production and glass manufacturing techniques greatly enhance bulb efficiency and lifespan, leading to rapid adoption in urban areas.</p>
+          </div>
+          <div class="timeline-item left">
+            <h3>1925</h3>
+            <p>In 1925, automated production methods allow for large-scale manufacturing of incandescent bulbs, standardizing their design and reducing costs dramatically.</p>
+          </div>
+          <div class="timeline-item right">
+            <h3>1935</h3>
+            <p>By 1935, companies like General Electric have perfected mass production, making incandescent bulbs affordable and widely accessible, spurring electrification around the world.</p>
+          </div>
+          <div class="timeline-item left">
+            <h3>1948</h3>
+            <p>In 1948, innovations in tungsten metallurgy and glass engineering yield bulbs that are significantly brighter and longer-lasting, setting new performance benchmarks.</p>
+          </div>
+          <div class="timeline-item right">
+            <h3>1960</h3>
+            <p>By 1960, research in both the US and Europe refines the production processes further. Bulbs become more reliable and efficient, though they still consume a great deal of energy.</p>
+          </div>
+          <div class="timeline-item left">
+            <h3>1975</h3>
+            <p>In 1975, growing environmental concerns prompt manufacturers to explore recycling and energy‑efficient production methods, laying the groundwork for future innovations.</p>
+          </div>
+          <div class="timeline-item right">
+            <h3>1985</h3>
+            <p>By 1985, improved manufacturing processes reduce the carbon footprint of incandescent bulbs, although energy inefficiency remains a significant drawback.</p>
+          </div>
+          <div class="timeline-item left">
+            <h3>2000</h3>
+            <p>In 2000, the emergence of LED and CFL technologies forces traditional incandescent producers to focus on niche applications and further optimize their processes for reduced environmental impact.</p>
+          </div>
+          <div class="timeline-item right">
+            <h3>2020</h3>
+            <p>By 2020, advanced recycling programs and energy‑efficient production techniques ensure that incandescents meet strict environmental standards, serving specialized markets where their light quality is still desired.</p>
+          </div>
+        </div>
+      </div>
+      <!-- Description Tab -->
+      <div id="incDescription" class="tab-content">
+        <div class="description-content">
+          <h2>About Incandescent Bulbs</h2>
+          <p>Incandescent bulbs produce light by passing an electric current through a tungsten filament, which heats up until it glows. They emit a warm, continuous spectrum of light that many find pleasing and natural.</p>
+          <p>While their simplicity is attractive, incandescents are inefficient compared to newer technologies, as much of the energy is lost as heat. Modern improvements focus on reducing their environmental impact through recycling and more efficient production methods.</p>
+          <p>These bulbs remain popular in applications where the quality of light and color rendering are of primary importance.</p>
+        </div>
+      </div>
+      <!-- Impact Tab with Dropdowns -->
+      <div id="incImpact" class="tab-content">
+        <div class="impact-content">
+          <h2>Environmental &amp; Social Impact – Incandescent</h2>
+          <ul class="impact-list">
+            <li data-metric="livesLost">
+              <details>
+                <summary>Lives lost: 12</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Fatalities during production have historically been attributed to industrial accidents and hazardous conditions.</p>
+                  <canvas id="incImpact_livesLost"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="energyPerBulb">
+              <details>
+                <summary>Energy used per bulb: 60 watts</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Energy consumption covers filament heating and associated manufacturing processes.</p>
+                  <canvas id="incImpact_energyPerBulb"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="co2PerUnit">
+              <details>
+                <summary>CO₂ emissions per unit: 0.8 kg</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: CO₂ emissions are estimated based on energy usage and production efficiency.</p>
+                  <canvas id="incImpact_co2PerUnit"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="waterConsumption">
+              <details>
+                <summary>Water consumption: 15 L</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Water is used during cooling and cleaning in the production process.</p>
+                  <canvas id="incImpact_waterConsumption"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="wasteGenerated">
+              <details>
+                <summary>Waste generated: 0.5 kg</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Waste includes scrap material, defective units, and by-products.</p>
+                  <canvas id="incImpact_wasteGenerated"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="tungstenConsumption">
+              <details>
+                <summary>Tungsten consumption: 0.1 kg</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Tungsten usage is critical for filament production and overall efficiency.</p>
+                  <canvas id="incImpact_tungstenConsumption"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="airPollution">
+              <details>
+                <summary>Air pollution index: 20</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Air quality measures reflect emissions during manufacturing.</p>
+                  <canvas id="incImpact_airPollution"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="recyclingRate">
+              <details>
+                <summary>Recycling rate: 30%</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Recycling initiatives help recover materials and reduce waste.</p>
+                  <canvas id="incImpact_recyclingRate"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="lifespan">
+              <details>
+                <summary>Average lifespan: 1,200 hours</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: The operating life of an incandescent bulb is limited compared to modern alternatives.</p>
+                  <canvas id="incImpact_lifespan"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="productionCost">
+              <details>
+                <summary>Production energy cost: $0.10/unit</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: This cost reflects the energy expenditure during manufacturing.</p>
+                  <canvas id="incImpact_productionCost"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="carbonFootprint">
+              <details>
+                <summary>Carbon footprint per bulb: 5 kg CO₂</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Overall carbon footprint accounts for the entire production lifecycle.</p>
+                  <canvas id="incImpact_carbonFootprint"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="resourceDepletion">
+              <details>
+                <summary>Resource depletion index: 40</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: The resource depletion index is calculated based on raw material usage.</p>
+                  <canvas id="incImpact_resourceDepletion"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="hazardousWaste">
+              <details>
+                <summary>Hazardous waste: 0.05 kg</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Hazardous waste includes toxic by-products from manufacturing.</p>
+                  <canvas id="incImpact_hazardousWaste"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="volatileEmissions">
+              <details>
+                <summary>Emission of volatile compounds: 3 units</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Emissions of volatile compounds are closely monitored in production.</p>
+                  <canvas id="incImpact_volatileEmissions"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="noise">
+              <details>
+                <summary>Noise during production: 60 dB</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Noise levels are measured to ensure safe working conditions.</p>
+                  <canvas id="incImpact_noise"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="workerSafety">
+              <details>
+                <summary>Worker safety incidents: 1 per 100,000 units</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Safety incident rates reflect improvements in production protocols.</p>
+                  <canvas id="incImpact_workerSafety"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="energyEfficiency">
+              <details>
+                <summary>Energy efficiency: 15 lm/W</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Luminous efficacy for incandescent bulbs is relatively low compared to modern alternatives.</p>
+                  <canvas id="incImpact_energyEfficiency"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="globalWarming">
+              <details>
+                <summary>Global warming potential: 80 CO₂-eq</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Global warming potential is calculated on a per-bulb basis.</p>
+                  <canvas id="incImpact_globalWarming"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="pollutionReduction">
+              <details>
+                <summary>Pollution reduction potential: 10%</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Potential to reduce pollution through improved manufacturing practices.</p>
+                  <canvas id="incImpact_pollutionReduction"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="lifecycleCost">
+              <details>
+                <summary>Lifecycle environmental cost: $0.05/unit</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: The total environmental cost over the bulb’s life is estimated here.</p>
+                  <canvas id="incImpact_lifecycleCost"></canvas>
+                </div>
+              </details>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================== LED Product ================== -->
+    <div id="led" class="product-content">
+      <div class="internal-menu">
+        <button class="internal-tab-button active" data-tab="ledMap">Map</button>
+        <button class="internal-tab-button" data-tab="ledGraphs">Graphs</button>
+        <button class="internal-tab-button" data-tab="ledParts">Parts List</button>
+        <button class="internal-tab-button" data-tab="ledHistory">History</button>
+        <button class="internal-tab-button" data-tab="ledDescription">Description</button>
+        <button class="internal-tab-button" data-tab="ledImpact">Impact</button>
+      </div>
+      <!-- Map Tab -->
+      <div id="ledMap" class="tab-content active">
+        <div id="ledMapContainer" class="map-container"></div>
+        <div id="ledFacilityInfo" class="facility-info">
+          <h3>Facility Details</h3>
+          <p>Click a numbered marker on the map to view facility information.</p>
+        </div>
+        <div class="legend">
+          <strong>Map Key</strong>
+          <p><span style="color: darkred;">●</span> LED Production Sites</p>
+          <p><span style="color: darkgreen;">●</span> Assembly &amp; R&amp;D Centers</p>
+          <p><span style="color: orange;">●</span> Additional Stops</p>
+        </div>
+      </div>
+      <!-- Graphs Tab -->
+      <div id="ledGraphs" class="tab-content">
+        <div class="graph-container">
+          <canvas id="ledCostChart"></canvas>
+        </div>
+        <div class="graph-container">
+          <canvas id="ledCO2Chart"></canvas>
+        </div>
+        <div class="graph-container">
+          <canvas id="ledEfficiencyChart"></canvas>
+        </div>
+        <div class="graph-container">
+          <canvas id="ledProductionChart"></canvas>
+        </div>
+        <div class="graph-container">
+          <canvas id="ledRadarChart"></canvas>
+        </div>
+        <div class="graph-container">
+          <canvas id="ledEnvChart"></canvas>
+        </div>
+      </div>
+      <!-- Parts List Tab -->
+      <div id="ledParts" class="tab-content">
+        <div class="parts-list">
+          <div class="part-item" data-part="ledChip">
+            <strong>LED Chip</strong>
+          </div>
+          <div class="part-details" id="led-details-ledChip">
+            <h3>LED Chip</h3>
+            <p>The LED chip is the core light-emitting component, produced in ultra-clean environments using advanced photolithography and doping techniques.</p>
+            <p><strong>Manufacturing Process:</strong> Involves deposition, patterning, and etching to achieve optimal efficiency and brightness.</p>
+            <p><strong>Function:</strong> Converts electrical energy directly into light with minimal heat production.</p>
+          </div>
+          <div class="part-item" data-part="heatSink">
+            <strong>Heat Sink</strong>
+          </div>
+          <div class="part-details" id="led-details-heatSink">
+            <h3>Heat Sink</h3>
+            <p>Constructed from extruded aluminum, the heat sink dissipates heat away from the LED chip to prevent thermal overload.</p>
+            <p><strong>Manufacturing Process:</strong> Involves extrusion, CNC machining, and surface treatment for maximum thermal conductivity.</p>
+            <p><strong>Function:</strong> Maintains optimal operating temperature for longevity.</p>
+          </div>
+          <div class="part-item" data-part="driver">
+            <strong>LED Driver</strong>
+          </div>
+          <div class="part-details" id="led-details-driver">
+            <h3>LED Driver</h3>
+            <p>The LED driver converts AC power to a stable DC supply and regulates current for the LED chip.</p>
+            <p><strong>Manufacturing Process:</strong> Assembled using SMD components on custom PCBs and rigorously tested for reliability.</p>
+            <p><strong>Function:</strong> Provides constant power to ensure consistent light output.</p>
+          </div>
+          <div class="part-item" data-part="optics">
+            <strong>Optics &amp; Lenses</strong>
+          </div>
+          <div class="part-details" id="led-details-optics">
+            <h3>Optics &amp; Lenses</h3>
+            <p>Custom-molded optics shape and direct the light from the LED chip to provide uniform illumination and reduce glare.</p>
+            <p><strong>Manufacturing Process:</strong> Produced via injection molding and enhanced with optical-grade coatings.</p>
+            <p><strong>Function:</strong> Improves beam quality and enhances overall light distribution.</p>
+          </div>
+          <div class="part-item" data-part="pcb">
+            <strong>Printed Circuit Board (PCB)</strong>
+          </div>
+          <div class="part-details" id="led-details-pcb">
+            <h3>Printed Circuit Board (PCB)</h3>
+            <p>The PCB provides both structural support and electrical connectivity for the LED chip and driver circuit.</p>
+            <p><strong>Manufacturing Process:</strong> Advanced etching and soldering processes ensure robust performance.</p>
+            <p><strong>Function:</strong> Acts as the backbone of the LED module.</p>
+          </div>
+          <div class="part-item" data-part="encapsulation">
+            <strong>Encapsulation Material</strong>
+          </div>
+          <div class="part-details" id="led-details-encapsulation">
+            <h3>Encapsulation Material</h3>
+            <p>This material protects the LED chip from moisture and mechanical stress while enhancing light extraction efficiency.</p>
+            <p><strong>Manufacturing Process:</strong> Applied via potting or injection molding and then cured to achieve clarity and durability.</p>
+            <p><strong>Function:</strong> Increases the overall lifespan of the LED module.</p>
+          </div>
+          <div class="part-item" data-part="thermalInterface">
+            <strong>Thermal Interface Layer</strong>
+          </div>
+          <div class="part-details" id="led-details-thermalInterface">
+            <h3>Thermal Interface Layer</h3>
+            <p>A specialized layer designed to improve heat transfer between the LED chip and the heat sink.</p>
+            <p><strong>Manufacturing Process:</strong> Applied as a thermally conductive paste or film and cured to form a robust bond.</p>
+            <p><strong>Function:</strong> Enhances thermal management and protects the LED chip from overheating.</p>
+          </div>
+          <div class="part-item" data-part="connectors">
+            <strong>Electrical Connectors</strong>
+          </div>
+          <div class="part-details" id="led-details-connectors">
+            <h3>Electrical Connectors</h3>
+            <p>High-quality connectors ensure a secure electrical interface between the LED module and its power source.</p>
+            <p><strong>Manufacturing Process:</strong> Precision stamping, forming, and plating techniques are used to maximize conductivity and durability.</p>
+            <p><strong>Function:</strong> Provides stable and reliable power delivery over the LED’s lifespan.</p>
+          </div>
+          <div class="part-item" data-part="qcReport">
+            <strong>Quality Assurance Report</strong>
+          </div>
+          <div class="part-details" id="led-details-qcReport">
+            <h3>Quality Assurance Report</h3>
+            <p>Each LED module undergoes comprehensive testing for brightness, efficiency, and color consistency before shipment.</p>
+            <p><strong>Manufacturing Process:</strong> Automated test systems capture performance metrics that are analyzed to ensure only top-quality products are released.</p>
+            <p><strong>Function:</strong> Ensures reliability and customer satisfaction.</p>
+          </div>
+        </div>
+      </div>
+      <!-- History Tab -->
+      <div id="ledHistory" class="tab-content">
+        <div class="timeline">
+          <div class="timeline-item left">
+            <h3>1972</h3>
+            <p>In 1972, early research laboratories begin LED development. These first devices, though crude, serve as the foundation for modern LED technology.</p>
+          </div>
+          <div class="timeline-item right">
+            <h3>1984</h3>
+            <p>By 1984, companies such as Nichia achieve breakthroughs in high‑brightness LED production, making the technology viable for general lighting.</p>
+          </div>
+          <div class="timeline-item left">
+            <h3>1993</h3>
+            <p>Improvements in semiconductor fabrication and materials reduce costs and improve the efficiency of LED chips, broadening their application scope.</p>
+          </div>
+          <div class="timeline-item right">
+            <h3>2001</h3>
+            <p>The year 2001 marks the entry of LEDs into the consumer market with smart, energy‑efficient designs that revolutionize residential lighting.</p>
+          </div>
+          <div class="timeline-item left">
+            <h3>2009</h3>
+            <p>By 2009, LED technology becomes mainstream across multiple sectors, celebrated for its long lifespan and superior energy efficiency.</p>
+          </div>
+          <div class="timeline-item right">
+            <h3>2018</h3>
+            <p>In 2018, record efficiencies are achieved, and smart LED lighting systems incorporating IoT technology are introduced, enhancing performance and control.</p>
+          </div>
+          <div class="timeline-item left">
+            <h3>2022</h3>
+            <p>By 2022, continuous innovation pushes LED technology to new performance heights, solidifying its status as the global standard for energy‑efficient lighting.</p>
+          </div>
+        </div>
+      </div>
+      <!-- Description Tab -->
+      <div id="ledDescription" class="tab-content">
+        <div class="description-content">
+          <h2>About LED Bulbs</h2>
+          <p>LED bulbs use semiconductor diodes to convert electricity directly into light. They offer high energy efficiency, immediate full brightness, and long operating lifespans.</p>
+          <p>Their compact design allows for a wide variety of shapes and colors, and they generate very little heat compared to incandescent bulbs.</p>
+          <p>Ongoing research and innovation continue to drive improvements in performance and cost, making LEDs the preferred lighting choice worldwide.</p>
+        </div>
+      </div>
+      <!-- Impact Tab with Dropdowns -->
+      <div id="ledImpact" class="tab-content">
+        <div class="impact-content">
+          <h2>Environmental &amp; Social Impact – LED</h2>
+          <ul class="impact-list">
+            <li data-metric="livesSaved">
+              <details>
+                <summary>Lives saved: 25</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Improved automation and safety protocols have reduced workplace fatalities in LED production.</p>
+                  <canvas id="ledImpact_livesSaved"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="energyPerBulb">
+              <details>
+                <summary>Energy used per bulb: 10 watts</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: LEDs consume far less energy due to their efficient semiconductor processes.</p>
+                  <canvas id="ledImpact_energyPerBulb"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="co2PerUnit">
+              <details>
+                <summary>CO₂ emissions per unit: 0.1 kg</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Low emissions are achieved through optimized energy usage and clean production methods.</p>
+                  <canvas id="ledImpact_co2PerUnit"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="recyclingRate">
+              <details>
+                <summary>Recycling rate: 80%</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: High material recovery rates are maintained in LED manufacturing.</p>
+                  <canvas id="ledImpact_recyclingRate"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="lifecycleCost">
+              <details>
+                <summary>Lifecycle environmental cost: $0.01/unit</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Over its long lifespan, an LED’s cost is minimized through energy savings and durability.</p>
+                  <canvas id="ledImpact_lifecycleCost"></canvas>
+                </div>
+              </details>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================== Fluorescent Product ================== -->
+    <div id="fluorescent" class="product-content">
+      <div class="internal-menu">
+        <button class="internal-tab-button active" data-tab="fluMap">Map</button>
+        <button class="internal-tab-button" data-tab="fluGraphs">Graphs</button>
+        <button class="internal-tab-button" data-tab="fluParts">Parts List</button>
+        <button class="internal-tab-button" data-tab="fluHistory">History</button>
+        <button class="internal-tab-button" data-tab="fluDescription">Description</button>
+        <button class="internal-tab-button" data-tab="fluImpact">Impact</button>
+      </div>
+      <!-- Map Tab -->
+      <div id="fluMap" class="tab-content active">
+        <div id="fluMapContainer" class="map-container"></div>
+        <div id="fluFacilityInfo" class="facility-info">
+          <h3>Facility Details</h3>
+          <p>Click a numbered marker on the map to view facility information.</p>
+        </div>
+        <div class="legend">
+          <strong>Map Key</strong>
+          <p><span style="color: darkblue;">●</span> Production Sites</p>
+          <p><span style="color: darkgreen;">●</span> Assembly &amp; R&amp;D Centers</p>
+          <p><span style="color: orange;">●</span> Additional Stops</p>
+        </div>
+      </div>
+      <!-- Graphs Tab -->
+      <div id="fluGraphs" class="tab-content">
+        <div class="graph-container">
+          <canvas id="fluCostChart"></canvas>
+        </div>
+        <div class="graph-container">
+          <canvas id="fluCO2Chart"></canvas>
+        </div>
+        <div class="graph-container">
+          <canvas id="fluEnergyChart"></canvas>
+        </div>
+        <div class="graph-container">
+          <canvas id="fluProductionChart"></canvas>
+        </div>
+        <div class="graph-container">
+          <canvas id="fluRadarChart"></canvas>
+        </div>
+        <div class="graph-container">
+          <canvas id="fluEnvChart"></canvas>
+        </div>
+      </div>
+      <!-- Parts List Tab -->
+      <div id="fluParts" class="tab-content">
+        <div class="parts-list">
+          <div class="part-item" data-part="ballast">
+            <strong>Ballast</strong>
+          </div>
+          <div class="part-details" id="flu-details-ballast">
+            <h3>Ballast</h3>
+            <p>The ballast regulates the current required to start and maintain the fluorescent discharge. It is vital for stabilizing the lamp's operation.</p>
+            <p><strong>Manufacturing Process:</strong> Involves assembling advanced electronic components on a custom PCB with stringent quality control.</p>
+            <p><strong>Function:</strong> Provides a controlled surge and stable current to ensure the lamp ignites and operates efficiently.</p>
+          </div>
+          <div class="part-item" data-part="phosphor">
+            <strong>Phosphor Coating</strong>
+          </div>
+          <div class="part-details" id="flu-details-phosphor">
+            <h3>Phosphor Coating</h3>
+            <p>This coating converts the ultraviolet light produced by mercury discharge into visible light with excellent color quality.</p>
+            <p><strong>Manufacturing Process:</strong> Applied uniformly using chemical processing techniques in a controlled environment.</p>
+            <p><strong>Function:</strong> Enhances light quality and determines the color temperature of the lamp.</p>
+          </div>
+          <div class="part-item" data-part="glassTube">
+            <strong>Glass Tube</strong>
+          </div>
+          <div class="part-details" id="flu-details-glassTube">
+            <h3>Glass Tube</h3>
+            <p>The tube is formed via high‑temperature glass blowing, providing a durable and clear enclosure for the fluorescent process.</p>
+            <p><strong>Manufacturing Process:</strong> Automated molding techniques produce tubes with consistent quality.</p>
+            <p><strong>Function:</strong> Contains mercury vapor and phosphor coating, essential for lamp operation.</p>
+          </div>
+          <div class="part-item" data-part="electrodeFlu">
+            <strong>Electrodes</strong>
+          </div>
+          <div class="part-details" id="flu-details-electrodeFlu">
+            <h3>Electrodes</h3>
+            <p>Electrodes are engineered to withstand high temperatures and initiate the fluorescent discharge.</p>
+            <p><strong>Manufacturing Process:</strong> Constructed from robust materials and rigorously tested for thermal endurance.</p>
+            <p><strong>Function:</strong> Provide the initial electrical surge needed to ignite the mercury vapor discharge.</p>
+          </div>
+          <div class="part-item" data-part="starterFlu">
+            <strong>Starter</strong>
+          </div>
+          <div class="part-details" id="flu-details-starterFlu">
+            <h3>Starter</h3>
+            <p>The starter preheats the electrodes and regulates the initial surge, ensuring a rapid and reliable ignition.</p>
+            <p><strong>Manufacturing Process:</strong> Engineered for consistent performance with minimal energy consumption.</p>
+            <p><strong>Function:</strong> Reduces time to full brightness and enhances lamp longevity.</p>
+          </div>
+          <div class="part-item" data-part="gasFill">
+            <strong>Mercury Gas Fill</strong>
+          </div>
+          <div class="part-details" id="flu-details-gasFill">
+            <h3>Mercury Gas Fill</h3>
+            <p>Low-pressure mercury vapor is introduced into the tube to generate ultraviolet light that is converted by the phosphor coating.</p>
+            <p><strong>Manufacturing Process:</strong> Controlled dosing systems ensure the optimal amount of mercury is used to minimize environmental impact.</p>
+            <p><strong>Function:</strong> Essential for initiating the fluorescent process.</p>
+          </div>
+          <div class="part-item" data-part="pcbFlu">
+            <strong>Electronic Control Circuit</strong>
+          </div>
+          <div class="part-details" id="flu-details-pcbFlu">
+            <h3>Electronic Control Circuit</h3>
+            <p>This circuit continuously monitors and adjusts the electrical parameters to maintain optimal lamp performance.</p>
+            <p><strong>Manufacturing Process:</strong> Assembled with state-of-the-art SMD components and undergoes comprehensive testing.</p>
+            <p><strong>Function:</strong> Ensures safe and efficient operation of the fluorescent lamp.</p>
+          </div>
+        </div>
+      </div>
+      <!-- History Tab -->
+      <div id="fluHistory" class="tab-content">
+        <div class="timeline">
+          <div class="timeline-item left">
+            <h3>1932</h3>
+            <p>In 1932, fluorescent technology is first demonstrated in a laboratory, showcasing its potential as an energy‑efficient alternative to incandescent lighting.</p>
+          </div>
+          <div class="timeline-item right">
+            <h3>1947</h3>
+            <p>By 1947, commercial fluorescent lamps start appearing in industrial settings, driven by breakthroughs in phosphor chemistry and tube manufacturing.</p>
+          </div>
+          <div class="timeline-item left">
+            <h3>1960</h3>
+            <p>In 1960, improvements in glass tube production and electronic ballast development allow fluorescent lamps to be used widely in offices and public spaces.</p>
+          </div>
+          <div class="timeline-item right">
+            <h3>1978</h3>
+            <p>In 1978, Compact Fluorescent Lamps (CFLs) are introduced, combining significant energy savings with improved design for residential applications.</p>
+          </div>
+          <div class="timeline-item left">
+            <h3>1989</h3>
+            <p>By 1989, refinements in phosphor formulations lead to improved color rendering and efficiency, enhancing the appeal of fluorescent lighting.</p>
+          </div>
+          <div class="timeline-item right">
+            <h3>2003</h3>
+            <p>In 2003, manufacturers focus on reducing mercury content and optimizing electronic ballasts, paving the way for safer and more eco-friendly fluorescent lamps.</p>
+          </div>
+          <div class="timeline-item left">
+            <h3>2015</h3>
+            <p>By 2015, advanced ballasts and refined phosphor coatings drive performance improvements in fluorescent technology for niche applications.</p>
+          </div>
+          <div class="timeline-item right">
+            <h3>2020</h3>
+            <p>In 2020, cutting-edge production techniques and stringent quality control ensure that fluorescent lamps meet modern environmental standards while maintaining their unique light quality.</p>
+          </div>
+        </div>
+      </div>
+      <!-- Description Tab -->
+      <div id="fluDescription" class="tab-content">
+        <div class="description-content">
+          <h2>About Fluorescent Bulbs</h2>
+          <p>Fluorescent bulbs work by ionizing mercury vapor to produce ultraviolet light that is converted into visible light by a phosphor coating. This process results in a cooler, more energy‑efficient light compared to incandescents.</p>
+          <p>They are widely used in commercial and institutional settings due to their longevity and efficiency, despite the environmental considerations associated with mercury.</p>
+          <p>Advances in ballast technology and phosphor chemistry have continuously improved their performance and reduced their environmental impact.</p>
+        </div>
+      </div>
+      <!-- Impact Tab with Dropdowns -->
+      <div id="fluImpact" class="tab-content">
+        <div class="impact-content">
+          <h2>Environmental &amp; Social Impact – Fluorescent</h2>
+          <ul class="impact-list">
+            <li data-metric="livesImpacted">
+              <details>
+                <summary>Lives impacted: 5</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Safety improvements and reduced mercury exposure have lessened production hazards.</p>
+                  <canvas id="fluImpact_livesImpacted"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="energyPerBulb">
+              <details>
+                <summary>Energy used per bulb: 30 watts</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Energy consumption is minimized by efficient electronic ballasts and tube designs.</p>
+                  <canvas id="fluImpact_energyPerBulb"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="co2PerUnit">
+              <details>
+                <summary>CO₂ emissions per unit: 0.4 kg</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Emissions reflect efficient production and reduced mercury usage.</p>
+                  <canvas id="fluImpact_co2PerUnit"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="recyclingRate">
+              <details>
+                <summary>Recycling rate: 50%</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Recycling helps mitigate environmental impact by recovering valuable materials.</p>
+                  <canvas id="fluImpact_recyclingRate"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="lifecycleCost">
+              <details>
+                <summary>Lifecycle environmental cost: $0.03/unit</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: This cost covers manufacturing, operation, and disposal phases.</p>
+                  <canvas id="fluImpact_lifecycleCost"></canvas>
+                </div>
+              </details>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================== Halogen Product ================== -->
+    <div id="halogen" class="product-content">
+      <div class="internal-menu">
+        <button class="internal-tab-button active" data-tab="halMap">Map</button>
+        <button class="internal-tab-button" data-tab="halGraphs">Graphs</button>
+        <button class="internal-tab-button" data-tab="halParts">Parts List</button>
+        <button class="internal-tab-button" data-tab="halHistory">History</button>
+        <button class="internal-tab-button" data-tab="halDescription">Description</button>
+        <button class="internal-tab-button" data-tab="halImpact">Impact</button>
+      </div>
+      <!-- Map Tab -->
+      <div id="halMap" class="tab-content active">
+        <div id="halMapContainer" class="map-container"></div>
+        <div id="halFacilityInfo" class="facility-info">
+          <h3>Facility Details</h3>
+          <p>Click a numbered marker on the map to view facility details.</p>
+        </div>
+        <div class="legend">
+          <strong>Map Key</strong>
+          <p><span style="color: maroon;">●</span> Halogen Production Sites</p>
+          <p><span style="color: teal;">●</span> Assembly &amp; R&amp;D Centers</p>
+          <p><span style="color: orange;">●</span> Small Stops</p>
+        </div>
+      </div>
+      <!-- Graphs Tab -->
+      <div id="halGraphs" class="tab-content">
+        <div class="graph-container">
+          <canvas id="halCostChart"></canvas>
+        </div>
+        <div class="graph-container">
+          <canvas id="halCO2Chart"></canvas>
+        </div>
+        <div class="graph-container">
+          <canvas id="halEnergyChart"></canvas>
+        </div>
+        <div class="graph-container">
+          <canvas id="halProductionChart"></canvas>
+        </div>
+        <div class="graph-container">
+          <canvas id="halRadarChart"></canvas>
+        </div>
+        <div class="graph-container">
+          <canvas id="halEnvChart"></canvas>
+        </div>
+      </div>
+      <!-- Parts List Tab -->
+      <div id="halParts" class="tab-content">
+        <div class="parts-list">
+          <div class="part-item" data-part="halogenBulb">
+            <strong>Halogen Bulb Assembly</strong>
+          </div>
+          <div class="part-details" id="hal-details-halogenBulb">
+            <h3>Halogen Bulb Assembly</h3>
+            <p>This process integrates a tungsten filament with a halogen gas atmosphere. The halogen gas redeposits tungsten vapor onto the filament, enhancing brightness and extending life.</p>
+            <p><strong>Manufacturing Process:</strong> High‑temperature sealing and precise gas injection ensure the correct concentration and optimal performance.</p>
+            <p><strong>Function:</strong> Maximizes light output and prolongs filament durability.</p>
+          </div>
+          <div class="part-item" data-part="reflector">
+            <strong>Reflector &amp; Coating</strong>
+          </div>
+          <div class="part-details" id="hal-details-reflector">
+            <h3>Reflector &amp; Coating</h3>
+            <p>A reflective coating is applied to the interior of the bulb to maximize light output and focus the beam.</p>
+            <p><strong>Manufacturing Process:</strong> Vapor deposition techniques ensure a uniform, high-quality layer.</p>
+            <p><strong>Function:</strong> Enhances luminous efficacy and color consistency.</p>
+          </div>
+          <div class="part-item" data-part="baseHalogen">
+            <strong>Metal Base</strong>
+          </div>
+          <div class="part-details" id="hal-details-baseHalogen">
+            <h3>Metal Base</h3>
+            <p>The base is manufactured from premium metals to ensure reliable electrical connectivity and efficient heat dissipation.</p>
+            <p><strong>Manufacturing Process:</strong> Precision stamping, machining, and plating produce a durable and corrosion‑resistant component.</p>
+          </div>
+          <div class="part-item" data-part="gasInjection">
+            <strong>Halogen Gas Injection</strong>
+          </div>
+          <div class="part-details" id="hal-details-gasInjection">
+            <h3>Halogen Gas Injection</h3>
+            <p>A precise amount of halogen gas is injected during production to facilitate the redeposition of tungsten.</p>
+            <p><strong>Manufacturing Process:</strong> Automated dosing systems monitor and control the gas concentration with high accuracy.</p>
+            <p><strong>Function:</strong> Critical for extending filament life and maintaining brightness.</p>
+          </div>
+          <div class="part-item" data-part="wiring">
+            <strong>Internal Wiring &amp; Connectors</strong>
+          </div>
+          <div class="part-details" id="hal-details-wiring">
+            <h3>Internal Wiring &amp; Connectors</h3>
+            <p>High-quality wiring and connectors are installed to ensure robust electrical continuity throughout the bulb.</p>
+            <p><strong>Manufacturing Process:</strong> Involves precision assembly and surface plating to enhance conductivity and durability.</p>
+          </div>
+          <div class="part-item" data-part="thermalManagement">
+            <strong>Thermal Management System</strong>
+          </div>
+          <div class="part-details" id="hal-details-thermalManagement">
+            <h3>Thermal Management System</h3>
+            <p>This system utilizes advanced heat-conductive materials to dissipate heat effectively and maintain optimal operating temperatures.</p>
+            <p><strong>Manufacturing Process:</strong> Incorporates materials like heat-conductive ceramics and composites in key areas.</p>
+            <p><strong>Function:</strong> Prevents overheating and ensures long-term performance.</p>
+          </div>
+          <div class="part-item" data-part="assemblyQC">
+            <strong>Assembly &amp; Quality Control</strong>
+          </div>
+          <div class="part-details" id="hal-details-assemblyQC">
+            <h3>Assembly &amp; Quality Control</h3>
+            <p>Every halogen bulb undergoes rigorous assembly and quality testing to ensure that only products meeting strict standards are shipped.</p>
+            <p><strong>Manufacturing Process:</strong> Combines automated testing systems with manual inspections for comprehensive evaluation.</p>
+          </div>
+          <div class="part-item" data-part="logistics">
+            <strong>Packaging &amp; Logistics</strong>
+          </div>
+          <div class="part-details" id="hal-details-logistics">
+            <h3>Packaging &amp; Logistics</h3>
+            <p>State‑of‑the‑art packaging protects bulbs during transit while smart logistics systems ensure efficient global distribution.</p>
+            <p><strong>Manufacturing Process:</strong> Uses eco‑friendly materials and advanced tracking systems.</p>
+          </div>
+        </div>
+      </div>
+      <!-- History Tab -->
+      <div id="halHistory" class="tab-content">
+        <div class="timeline">
+          <div class="timeline-item left">
+            <h3>1968</h3>
+            <p>In 1968, European engineers introduce halogen technology to improve incandescent bulbs by recycling tungsten vapor through a halogen gas process, marking a significant innovation in light bulb design.</p>
+          </div>
+          <div class="timeline-item right">
+            <h3>1974</h3>
+            <p>By 1974, halogen lamps are adopted in automotive lighting, offering brighter, more efficient performance compared to standard incandescents, and setting new industry standards.</p>
+          </div>
+          <div class="timeline-item left">
+            <h3>1980</h3>
+            <p>In 1980, advances in sealing and reflector design by manufacturers in Germany and Italy yield halogen bulbs with significantly improved durability and energy efficiency.</p>
+          </div>
+          <div class="timeline-item right">
+            <h3>1992</h3>
+            <p>In 1992, halogen technology expands into household and commercial markets as production methods become more refined and cost‑effective.</p>
+          </div>
+          <div class="timeline-item left">
+            <h3>2000</h3>
+            <p>By 2000, environmental regulations drive innovation in halogen production, resulting in bulbs that use less energy and are more recyclable, while maintaining their performance.</p>
+          </div>
+          <div class="timeline-item right">
+            <h3>2010</h3>
+            <p>In 2010, advanced materials and manufacturing techniques further optimize halogen performance, significantly reducing their environmental footprint.</p>
+          </div>
+          <div class="timeline-item left">
+            <h3>2021</h3>
+            <p>By 2021, halogen bulbs are refined for niche applications where their unique light quality and rapid response are still valued despite LED dominance in most markets.</p>
+          </div>
+        </div>
+      </div>
+      <!-- Description Tab -->
+      <div id="halDescription" class="tab-content">
+        <div class="description-content">
+          <h2>About Halogen Bulbs</h2>
+          <p>Halogen bulbs are a type of incandescent lamp that incorporate a small amount of halogen gas (usually iodine or bromine). This gas enables the recycling of tungsten vapor onto the filament, which increases brightness and extends its lifespan.</p>
+          <p>They emit a crisp, white light and are commonly used in automotive and specialty lighting applications. Continuous improvements in materials and manufacturing have enhanced their performance while reducing their environmental impact.</p>
+        </div>
+      </div>
+      <!-- Impact Tab with Dropdowns -->
+      <div id="halImpact" class="tab-content">
+        <div class="impact-content">
+          <h2>Environmental &amp; Social Impact – Halogen</h2>
+          <ul class="impact-list">
+            <li data-metric="livesAffected">
+              <details>
+                <summary>Lives affected: 8</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Safety measures in halogen production help reduce risks during high-temperature processes.</p>
+                  <canvas id="halImpact_livesAffected"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="energyPerBulb">
+              <details>
+                <summary>Energy used per bulb: 75 watts</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Energy consumption is spread across assembly, gas injection, and wiring stages.</p>
+                  <canvas id="halImpact_energyPerBulb"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="co2PerUnit">
+              <details>
+                <summary>CO₂ emissions per unit: 1.0 kg</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Emission values reflect improved production efficiencies over time.</p>
+                  <canvas id="halImpact_co2PerUnit"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="recyclingRate">
+              <details>
+                <summary>Recycling rate: 40%</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: Recycling programs target material recovery and waste minimization.</p>
+                  <canvas id="halImpact_recyclingRate"></canvas>
+                </div>
+              </details>
+            </li>
+            <li data-metric="lifecycleCost">
+              <details>
+                <summary>Lifecycle environmental cost: $0.07/unit</summary>
+                <div class="impact-dropdown">
+                  <p>Detailed info: The cumulative environmental cost over production and disposal is carefully calculated.</p>
+                  <canvas id="halImpact_lifecycleCost"></canvas>
+                </div>
+              </details>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================== Other Tab ================== -->
+    <div id="other" class="product-content">
+      <div class="internal-menu">
+        <button class="internal-tab-button active" data-tab="otherFacts">Facts</button>
+        <button class="internal-tab-button" data-tab="otherMoreBulbs">More Bulbs</button>
+        <button class="internal-tab-button" data-tab="otherCool">Cool Analysis</button>
+        <button class="internal-tab-button" data-tab="otherSources">Sources</button>
+      </div>
+      <!-- Facts Tab -->
+      <div id="otherFacts" class="tab-content other-content active">
+        <h2>Bulb Facts &amp; Resources</h2>
+        <ul>
+          <li><strong>History:</strong> The first practical incandescent bulb was developed by Thomas Edison in the late 19th century, revolutionizing indoor lighting.</li>
+          <li><strong>Energy Efficiency:</strong> Incandescent bulbs produce only 10–17 lm/W, while modern LEDs can exceed 100 lm/W.</li>
+          <li><strong>Longevity:</strong> Fluorescent bulbs last up to 8,000 hours and LEDs up to 25,000 hours or more.</li>
+          <li><strong>Environmental Impact:</strong> Over its lifecycle, an LED produces far fewer greenhouse gas emissions compared to incandescent bulbs.</li>
+          <li><strong>Innovation:</strong> Global phase-outs of incandescents have spurred rapid advancements in energy‑efficient lighting technologies.</li>
+          <li><strong>Recycling:</strong> Many regions offer recycling programs to recover materials from spent fluorescent and LED bulbs.</li>
+          <li><strong>Fun Fact:</strong> “Incandescent” comes from the Latin “incandescere” meaning “to glow,” describing the glowing filament.</li>
+          <li><strong>Tip:</strong> Switching to LED lighting in your home can reduce energy consumption by up to 75% compared to incandescents.</li>
+        </ul>
+      </div>
+      <!-- More Bulbs Tab -->
+      <div id="otherMoreBulbs" class="tab-content other-content">
+        <h2>More Bulbs &amp; Technologies</h2>
+        <p>In addition to incandescent, LED, fluorescent, and halogen bulbs, there are many other types of lighting technologies available:</p>
+        <ul>
+          <li><strong>HID (High-Intensity Discharge) Bulbs:</strong> Commonly used in street lighting and stadiums, these bulbs provide intense light output.</li>
+          <li><strong>CFL (Compact Fluorescent Lamps):</strong> A more energy‑efficient version of traditional fluorescent lighting with a compact design.</li>
+          <li><strong>Plasma and Laser-based Lighting:</strong> Emerging technologies promising even greater efficiency and control.</li>
+          <li><strong>OLED (Organic LED) Lighting:</strong> Offers flexible, thin, and uniform lighting panels that are used in modern displays and ambient lighting.</li>
+        </ul>
+        <p>Explore the visual differences below:</p>
+        <img src="https://via.placeholder.com/800x400?text=HID+Bulb" alt="HID Bulb" style="max-width:100%; border: 2px solid #f39c12; border-radius: 10px; margin-bottom: 20px;">
+        <img src="https://via.placeholder.com/800x400?text=CFL+Bulb" alt="CFL Bulb" style="max-width:100%; border: 2px solid #f39c12; border-radius: 10px;">
+      </div>
+      <!-- Cool Analysis Tab -->
+      <div id="otherCool" class="tab-content other-content">
+        <h2>Cool Analysis: The Future of Lighting</h2>
+        <p>Discover insights into emerging lighting technologies and how they compare to traditional bulbs:</p>
+        <ul>
+          <li>LEDs now offer efficiencies exceeding 100 lm/W.</li>
+          <li>Smart lighting systems integrate IoT for adaptive, energy-saving solutions.</li>
+          <li>Emerging technologies like OLED and laser-based lighting promise even more customization.</li>
+          <li>Human-centric lighting is improving health by aligning with our circadian rhythms.</li>
+        </ul>
+        <canvas id="futureLightingChart" style="max-width:100%;"></canvas>
+        <script>
+          new Chart(document.getElementById('futureLightingChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+              labels: ['LED', 'OLED', 'Laser', 'CFL', 'Incandescent'],
+              datasets: [{
+                label: 'Efficiency (lm/W)',
+                data: [120, 90, 110, 60, 15],
+                backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF']
+              }]
+            },
+            options: { 
+              plugins: { title: { display: true, text: 'Comparative Efficiency of Lighting Technologies' } },
+              scales: { y: { beginAtZero: true, title: { display: true, text: 'Lumens per Watt (lm/W)' } } }
+            }
+          });
+        </script>
+      </div>
+      <!-- Sources Tab -->
+      <div id="otherSources" class="tab-content other-content">
+  <h2>Sources &amp; References</h2>
+  <ul>
+    <li><a href="https://www.energy.gov/energysaver/lighting-choices-save-you-money" target="_blank">U.S. Department of Energy – Lighting Choices Save You Money</a></li>
+    <li><a href="https://www.energystar.gov/products/lighting_fans/light_bulbs" target="_blank">ENERGY STAR – Light Bulbs</a></li>
+    <li><a href="https://www.epa.gov/energy/star-program" target="_blank">U.S. EPA – Energy Star Program</a></li>
+    <li><a href="https://www.iea.org/reports/lighting" target="_blank">International Energy Agency (IEA) – Lighting</a></li>
+    <li><a href="https://www.ies.org/" target="_blank">Illuminating Engineering Society (IES)</a></li>
+    <li><a href="https://www.nrel.gov/led/" target="_blank">National Renewable Energy Laboratory (NREL) – LED Lighting Research</a></li>
+    <li><a href="https://www2.lbl.gov/" target="_blank">Lawrence Berkeley National Laboratory (LBNL) – Lighting Efficiency</a></li>
+    <li><a href="https://www.iec.ch/" target="_blank">International Electrotechnical Commission (IEC) – Standards for Lighting</a></li>
+    <li><a href="https://doi.org/10.1016/j.jclepro.2016.05.134" target="_blank">Journal of Cleaner Production – Life Cycle Assessment of LED Lighting</a></li>
+    <li><a href="https://www.usgbc.org/green-lighting" target="_blank">U.S. Green Building Council (USGBC) – Green Lighting</a></li>
+  </ul>
+  <p>These sources provide detailed and reliable information on the environmental impacts of various lighting technologies, life cycle assessments, energy efficiency standards, and sustainability practices.</p>
+</div>
+
+
+  <!-- ===== SCRIPTS ===== -->
+  <script>
+    // Theme Switcher Function
+    function switchTheme(themeName) {
+      document.body.className = themeName;
+    }
+
+    // Top-Level Product Switcher
+    const productTabs = document.querySelectorAll('.product-tab');
+    const productContents = document.querySelectorAll('.product-content');
+    productTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        productTabs.forEach(t => t.classList.remove('active'));
+        productContents.forEach(content => content.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.getAttribute('data-product')).classList.add('active');
+      });
+    });
+
+    // Internal Tab Switching Setup
+    function setupInternalTabs(productId) {
+      const container = document.getElementById(productId);
+      const internalTabs = container.querySelectorAll('.internal-tab-button');
+      const tabContents = container.querySelectorAll('.tab-content');
+      internalTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          internalTabs.forEach(t => t.classList.remove('active'));
+          tabContents.forEach(tc => tc.classList.remove('active'));
+          tab.classList.add('active');
+          container.querySelector('#' + tab.getAttribute('data-tab')).classList.add('active');
+          // If a map tab is activated, adjust its size
+          if(tab.getAttribute('data-tab').toLowerCase().includes("map")){
+            setTimeout(() => {
+              const mapDiv = container.querySelector('.map-container');
+              if(mapDiv && mapInstances[mapDiv.id]) {
+                mapInstances[mapDiv.id].invalidateSize();
+              }
+            }, 200);
+          }
+        });
+      });
+    }
+    ['incandescent', 'led', 'fluorescent', 'halogen', 'other'].forEach(setupInternalTabs);
+
+    // Parts List Toggle
+    function setupPartsToggle(containerId) {
+      const container = document.getElementById(containerId);
+      const partItems = container.querySelectorAll('.part-item');
+      partItems.forEach(item => {
+        item.addEventListener('click', () => {
+          const part = item.getAttribute('data-part');
+          const prefix = container.id.substring(0,3);
+          const details = document.getElementById(prefix + '-details-' + part);
+          if(details) {
+            details.style.display = details.style.display === 'block' ? 'none' : 'block';
+          }
+        });
+      });
+    }
+    setupPartsToggle('incParts');
+    setupPartsToggle('ledParts');
+    setupPartsToggle('fluParts');
+    setupPartsToggle('halParts');
+
+    // Map Initialization with MarkerCluster
+    const mapInstances = {};
+    function initMap(containerId, markersData, facilityTargetId) {
+      const map = L.map(containerId).setView([20, 0], 2);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 5,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+      mapInstances[containerId] = map;
+      const markers = L.markerClusterGroup();
+      markersData.forEach(marker => {
+        const icon = L.divIcon({
+          html: `<div class="custom-div-icon" style="background: ${marker.color};">${marker.order}</div>`,
+          iconSize: [30,30],
+          className: ''
+        });
+        const m = L.marker([marker.lat, marker.lng], { icon: icon });
+        m.bindPopup(marker.info);
+        m.on('click', () => {
+          document.getElementById(facilityTargetId).innerHTML = `
+            <h3>Facility Details (Step ${marker.order})</h3>
+            <p>${marker.info}</p>
+            <img src="https://via.placeholder.com/300x200?text=Facility+Image" alt="Facility Image">
+          `;
+        });
+        markers.addLayer(m);
+      });
+      map.addLayer(markers);
+    }
+    const incMarkersData = [
+      { lat: 34.0522, lng: -118.2437, info: "Incandescent Production in Los Angeles – specializes in tungsten processing.", color: "red", order: 1 },
+      { lat: 51.5074, lng: -0.1278, info: "Incandescent Production in London – precision glass molding.", color: "red", order: 2 },
+      { lat: 35.6895, lng: 139.6917, info: "Incandescent Production in Tokyo – high-efficiency assembly.", color: "red", order: 3 },
+      { lat: 40.7128, lng: -74.0060, info: "Transport Hub in New York – handles logistics and shipping.", color: "blue", order: 4 },
+      { lat: 37.7749, lng: -122.4194, info: "R&D Center in San Francisco – innovates new filament materials.", color: "purple", order: 5 }
+    ];
+    const ledMarkersData = [
+      { lat: 37.5665, lng: 126.9780, info: "LED Production in Seoul – specializes in semiconductor fabrication.", color: "darkred", order: 1 },
+      { lat: 39.9042, lng: 116.4074, info: "LED Production in Beijing – high precision chip manufacturing.", color: "darkred", order: 2 },
+      { lat: 52.5200, lng: 13.4050, info: "Assembly &amp; R&amp;D in Berlin – develops advanced LED modules.", color: "darkgreen", order: 3 },
+      { lat: 34.6937, lng: 135.5023, info: "Quality Control in Osaka – focuses on testing and inspection.", color: "orange", order: 4 }
+    ];
+    const fluMarkersData = [
+      { lat: 40.7128, lng: -74.0060, info: "Fluorescent Production in New York – leading in CFL assembly.", color: "darkblue", order: 1 },
+      { lat: 48.8566, lng: 2.3522, info: "Fluorescent Production in Paris – renowned for phosphor coating.", color: "darkblue", order: 2 },
+      { lat: 35.6895, lng: 139.6917, info: "Fluorescent Production in Tokyo – expert in glass tube molding.", color: "darkblue", order: 3 },
+      { lat: 51.1657, lng: 10.4515, info: "Assembly &amp; R&amp;D in Berlin – innovates electronic ballast design.", color: "darkgreen", order: 4 },
+      { lat: 31.2304, lng: 121.4737, info: "Quality Control in Shanghai – optimizes logistics.", color: "orange", order: 5 }
+    ];
+    const halMarkersData = [
+      { lat: 41.9028, lng: 12.4964, info: "Halogen Production in Rome – specializes in halogen gas injection.", color: "maroon", order: 1 },
+      { lat: 52.5200, lng: 13.4050, info: "Halogen Production in Berlin – advanced sealing methods.", color: "maroon", order: 2 },
+      { lat: 35.6895, lng: 139.6917, info: "Transport Hub in Tokyo – manages global distribution.", color: "teal", order: 3 },
+      { lat: 40.4168, lng: -3.7038, info: "Quality Inspection in Madrid – final quality checks.", color: "orange", order: 4 }
+    ];
+    initMap('incMapContainer', incMarkersData, 'incFacilityInfo');
+    initMap('ledMapContainer', ledMarkersData, 'ledFacilityInfo');
+    initMap('fluMapContainer', fluMarkersData, 'fluFacilityInfo');
+    initMap('halMapContainer', halMarkersData, 'halFacilityInfo');
+
+    // Graphs Initialization (using original sample data)
+    new Chart(document.getElementById('incCostChart').getContext('2d'), {
+      type: 'pie',
+      data: {
+        labels: ['Materials','Manufacturing','Logistics','R&D'],
+        datasets: [{ data: [45,25,20,10], backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4BC0C0'] }]
+      },
+      options: { plugins: { title: { display: true, text: 'Incandescent Cost Distribution' } } }
+    });
+    new Chart(document.getElementById('incCO2Chart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['Filament','Glass Bulb','Base','Inert Gas','Electrodes','Support'],
+        datasets: [{ data: [80,60,40,20,15,10], backgroundColor: 'rgba(255,99,132,0.6)' }]
+      },
+      options: { plugins: { title: { display: true, text: 'Incandescent CO₂ Emissions (kg)' } }, scales: { y: { beginAtZero: true } } }
+    });
+    new Chart(document.getElementById('incEnergyChart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: ['1900','1930','1960','1980','2000','2020'],
+        datasets: [{ label: 'Energy (GWh)', data: [10,50,200,500,800,600], fill: false, borderColor: '#36A2EB', tension: 0.1 }]
+      },
+      options: { plugins: { title: { display: true, text: 'Incandescent Energy Consumption Over Time' } } }
+    });
+    new Chart(document.getElementById('incProductionChart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: ['1900','1930','1960','1980','2000','2020'],
+        datasets: [{ label: 'Production (millions)', data: [0.5,5,20,50,70,40], fill: false, borderColor: '#FFCE56', tension: 0.1 }]
+      },
+      options: { plugins: { title: { display: true, text: 'Incandescent Production Over Time' } } }
+    });
+    new Chart(document.getElementById('incRadarChart').getContext('2d'), {
+      type: 'radar',
+      data: {
+        labels: ['Efficiency','Durability','Cost','CO₂','Energy'],
+        datasets: [{ data: [60,70,50,40,80], backgroundColor: 'rgba(75,192,192,0.2)', borderColor: '#4BC0C0' }]
+      },
+      options: { plugins: { title: { display: true, text: 'Incandescent Overall Metrics' } } }
+    });
+    new Chart(document.getElementById('incEnvChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['CO₂ per Watt','Water Usage (L)','Waste (kg)','Energy Efficiency Score'],
+        datasets: [{ data: [0.5,120,0.2,60], backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4BC0C0'] }]
+      },
+      options: { plugins: { title: { display: true, text: 'Incandescent Environmental Impact' } }, scales: { y: { beginAtZero: true } } }
+    });
+    
+    new Chart(document.getElementById('ledCostChart').getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Materials','Manufacturing','Logistics','R&D','Innovation'],
+        datasets: [{ data: [35,25,20,10,10], backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF'] }]
+      },
+      options: { plugins: { title: { display: true, text: 'LED Cost Distribution' } } }
+    });
+    new Chart(document.getElementById('ledCO2Chart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['LED Chip','Heat Sink','Driver','Optics','PCB'],
+        datasets: [{ data: [30,20,25,15,10], backgroundColor: 'rgba(54,162,235,0.6)' }]
+      },
+      options: { plugins: { title: { display: true, text: 'LED CO₂ Emissions (kg)' } }, scales: { y: { beginAtZero: true } } }
+    });
+    new Chart(document.getElementById('ledEfficiencyChart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: ['2000','2005','2010','2015','2020'],
+        datasets: [{ label: 'Luminous Efficacy (lm/W)', data: [50,70,90,110,130], fill: false, borderColor: '#4BC0C0', tension: 0.1 }]
+      },
+      options: { plugins: { title: { display: true, text: 'LED Efficiency Over Time' } } }
+    });
+    new Chart(document.getElementById('ledProductionChart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: ['1970','1980','1990','2000','2010','2020'],
+        datasets: [{ label: 'Production (millions)', data: [1,3,10,20,40,60], fill: false, borderColor: '#FFCE56', tension: 0.1 }]
+      },
+      options: { plugins: { title: { display: true, text: 'LED Production Over Time' } } }
+    });
+    new Chart(document.getElementById('ledRadarChart').getContext('2d'), {
+      type: 'radar',
+      data: {
+        labels: ['Efficiency','Lifespan','Cost','CO₂','Innovation'],
+        datasets: [{ data: [80,90,40,20,70], backgroundColor: 'rgba(255,206,86,0.2)', borderColor: '#FFCE56' }]
+      },
+      options: { plugins: { title: { display: true, text: 'LED Overall Metrics' } } }
+    });
+    new Chart(document.getElementById('ledEnvChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['CO₂ per Watt','Water Usage (L)','Waste (kg)','Energy Efficiency Score'],
+        datasets: [{ data: [0.3,80,0.1,85], backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4BC0C0'] }]
+      },
+      options: { plugins: { title: { display: true, text: 'LED Environmental Impact' } }, scales: { y: { beginAtZero: true } } }
+    });
+    
+    new Chart(document.getElementById('fluCostChart').getContext('2d'), {
+      type: 'pie',
+      data: {
+        labels: ['Materials','Manufacturing','Logistics','R&D'],
+        datasets: [{ data: [40,30,20,10], backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4BC0C0'] }]
+      },
+      options: { plugins: { title: { display: true, text: 'Fluorescent Cost Distribution' } } }
+    });
+    new Chart(document.getElementById('fluCO2Chart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['Ballast','Phosphor','Glass Tube','Electrodes','Starter'],
+        datasets: [{ data: [50,30,20,15,10], backgroundColor: 'rgba(255,159,64,0.6)' }]
+      },
+      options: { plugins: { title: { display: true, text: 'Fluorescent CO₂ Emissions (kg)' } }, scales: { y: { beginAtZero: true } } }
+    });
+    new Chart(document.getElementById('fluEnergyChart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: ['1950','1960','1970','1980','1990','2000','2020'],
+        datasets: [{ label: 'Energy (GWh)', data: [5,15,30,60,80,90,70], fill: false, borderColor: '#36A2EB', tension: 0.1 }]
+      },
+      options: { plugins: { title: { display: true, text: 'Fluorescent Energy Consumption Over Time' } } }
+    });
+    new Chart(document.getElementById('fluProductionChart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: ['1932','1947','1960','1978','1989','2003','2015'],
+        datasets: [{ label: 'Production (millions)', data: [2,8,20,35,50,60,55], fill: false, borderColor: '#FFCE56', tension: 0.1 }]
+      },
+      options: { plugins: { title: { display: true, text: 'Fluorescent Production Over Time' } } }
+    });
+    new Chart(document.getElementById('fluRadarChart').getContext('2d'), {
+      type: 'radar',
+      data: {
+        labels: ['Efficiency','Color Accuracy','Cost','CO₂','Energy'],
+        datasets: [{ data: [60,70,50,30,80], backgroundColor: 'rgba(153,102,255,0.2)', borderColor: '#9966FF' }]
+      },
+      options: { plugins: { title: { display: true, text: 'Fluorescent Overall Metrics' } } }
+    });
+    new Chart(document.getElementById('fluEnvChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['CO₂ per Watt','Water Usage (L)','Waste (kg)','Energy Efficiency Score'],
+        datasets: [{ data: [0.4,100,0.15,65], backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4BC0C0'] }]
+      },
+      options: { plugins: { title: { display: true, text: 'Fluorescent Environmental Impact' } }, scales: { y: { beginAtZero: true } } }
+    });
+    
+    new Chart(document.getElementById('halCostChart').getContext('2d'), {
+      type: 'pie',
+      data: {
+        labels: ['Materials','Manufacturing','Logistics','R&D'],
+        datasets: [{ data: [50,20,20,10], backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4BC0C0'] }]
+      },
+      options: { plugins: { title: { display: true, text: 'Halogen Cost Distribution' } } }
+    });
+    new Chart(document.getElementById('halCO2Chart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['Bulb Assembly','Reflector','Base'],
+        datasets: [{ data: [70,40,30], backgroundColor: 'rgba(255,99,132,0.6)' }]
+      },
+      options: { plugins: { title: { display: true, text: 'Halogen CO₂ Emissions (kg)' } }, scales: { y: { beginAtZero: true } } }
+    });
+    new Chart(document.getElementById('halEnergyChart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: ['1968','1974','1980','1992','2000','2010','2021'],
+        datasets: [{ label: 'Energy (GWh)', data: [20,45,80,100,90,70,65], fill: false, borderColor: '#36A2EB', tension: 0.1 }]
+      },
+      options: { plugins: { title: { display: true, text: 'Halogen Energy Consumption Over Time' } } }
+    });
+    new Chart(document.getElementById('halProductionChart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: ['1968','1974','1980','1992','2000','2010','2021'],
+        datasets: [{ label: 'Production (millions)', data: [1,3,10,20,30,25,22], fill: false, borderColor: '#FFCE56', tension: 0.1 }]
+      },
+      options: { plugins: { title: { display: true, text: 'Halogen Production Over Time' } } }
+    });
+    new Chart(document.getElementById('halRadarChart').getContext('2d'), {
+      type: 'radar',
+      data: {
+        labels: ['Efficiency','Brightness','Cost','CO₂','Lifespan'],
+        datasets: [{ data: [70,80,60,50,70], backgroundColor: 'rgba(255,159,64,0.2)', borderColor: '#FF9F40' }]
+      },
+      options: { plugins: { title: { display: true, text: 'Halogen Overall Metrics' } } }
+    });
+    new Chart(document.getElementById('halEnvChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['CO₂ per Watt','Water Usage (L)','Waste (kg)','Energy Efficiency Score'],
+        datasets: [{ data: [0.6,150,0.25,55], backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4BC0C0'] }]
+      },
+      options: { plugins: { title: { display: true, text: 'Halogen Environmental Impact' } }, scales: { y: { beginAtZero: true } } }
+    });
+    
+    // Impact Dropdown Charts Initialization
+    const impactCharts = {};
+    function initImpactChart(product, metric, canvasId) {
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      let config = {};
+      if (product === 'incandescent') {
+        switch(metric) {
+          case 'livesLost':
+            config = {
+              type: 'pie',
+              data: {
+                labels: ['Falls','Electrical','Other'],
+                datasets: [{ data: [50,30,20], backgroundColor: ['#FF6384','#36A2EB','#FFCE56'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Causes of Fatalities' } } }
+            };
+            break;
+          case 'energyPerBulb':
+            config = {
+              type: 'bar',
+              data: {
+                labels: ['Filament','Glass','Base'],
+                datasets: [{ data: [20,15,10], backgroundColor: ['#4BC0C0','#FFCE56','#FF6384'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Energy Distribution per Bulb' } }, scales: { y: { beginAtZero: true } } }
+            };
+            break;
+          case 'co2PerUnit':
+            config = {
+              type: 'line',
+              data: {
+                labels: ['1900','1930','1960','1980','2000','2020'],
+                datasets: [{ label: 'CO₂ (kg)', data: [1.0,0.95,0.9,0.85,0.9,0.8], fill: false, borderColor: '#36A2EB', tension: 0.1 }]
+              },
+              options: { plugins: { title: { display: true, text: 'CO₂ Emissions Trend' } } }
+            };
+            break;
+          case 'waterConsumption':
+            config = {
+              type: 'bar',
+              data: {
+                labels: ['Cooling','Cleaning','Process'],
+                datasets: [{ data: [5,4,6], backgroundColor: ['#FFCE56','#FF6384','#4BC0C0'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Water Usage Breakdown' } }, scales: { y: { beginAtZero: true } } }
+            };
+            break;
+          case 'wasteGenerated':
+            config = {
+              type: 'doughnut',
+              data: {
+                labels: ['Scrap','Defects','By-products'],
+                datasets: [{ data: [60,25,15], backgroundColor: ['#36A2EB','#FF6384','#FFCE56'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Waste Composition' } } }
+            };
+            break;
+          case 'tungstenConsumption':
+            config = {
+              type: 'bar',
+              data: {
+                labels: ['Tungsten Used (kg)'],
+                datasets: [{ data: [0.1], backgroundColor: ['#FFCE56'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Tungsten Consumption' } }, scales: { y: { beginAtZero: true } } }
+            };
+            break;
+          case 'airPollution':
+            config = {
+              type: 'bar',
+              data: {
+                labels: ['Air Pollution Index'],
+                datasets: [{ data: [20], backgroundColor: ['#FF6384'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Air Pollution Index' } }, scales: { y: { beginAtZero: true } } }
+            };
+            break;
+          case 'recyclingRate':
+            config = {
+              type: 'doughnut',
+              data: {
+                labels: ['Recycled','Not Recycled'],
+                datasets: [{ data: [30,70], backgroundColor: ['#36A2EB','#FF6384'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Recycling Rate' } } }
+            };
+            break;
+          case 'lifespan':
+            config = {
+              type: 'bar',
+              data: {
+                labels: ['Average Lifespan (hrs)'],
+                datasets: [{ data: [1200], backgroundColor: ['#4BC0C0'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Average Lifespan' } }, scales: { y: { beginAtZero: true } } }
+            };
+            break;
+          case 'productionCost':
+            config = {
+              type: 'bar',
+              data: {
+                labels: ['Cost ($)'],
+                datasets: [{ data: [0.10], backgroundColor: ['#FFCE56'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Production Energy Cost' } }, scales: { y: { beginAtZero: true } } }
+            };
+            break;
+          case 'carbonFootprint':
+            config = {
+              type: 'line',
+              data: {
+                labels: ['Lifecycle'],
+                datasets: [{ label: 'Carbon Footprint (kg CO₂)', data: [5], fill: false, borderColor: '#36A2EB' }]
+              },
+              options: { plugins: { title: { display: true, text: 'Carbon Footprint per Bulb' } } }
+            };
+            break;
+          case 'resourceDepletion':
+            config = {
+              type: 'bar',
+              data: {
+                labels: ['Resource Depletion Index'],
+                datasets: [{ data: [40], backgroundColor: ['#FF6384'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Resource Depletion Index' } }, scales: { y: { beginAtZero: true } } }
+            };
+            break;
+          case 'hazardousWaste':
+            config = {
+              type: 'doughnut',
+              data: {
+                labels: ['Hazardous Waste','Non-hazardous'],
+                datasets: [{ data: [5,95], backgroundColor: ['#36A2EB','#FF6384'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Hazardous Waste' } } }
+            };
+            break;
+          case 'volatileEmissions':
+            config = {
+              type: 'bar',
+              data: {
+                labels: ['Volatile Emissions (units)'],
+                datasets: [{ data: [3], backgroundColor: ['#FFCE56'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Emission of Volatile Compounds' } }, scales: { y: { beginAtZero: true } } }
+            };
+            break;
+          case 'noise':
+            config = {
+              type: 'bar',
+              data: {
+                labels: ['Noise Level (dB)'],
+                datasets: [{ data: [60], backgroundColor: ['#FF6384'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Noise during Production' } }, scales: { y: { beginAtZero: true } } }
+            };
+            break;
+          case 'workerSafety':
+            config = {
+              type: 'bar',
+              data: {
+                labels: ['Incidents per 100k units'],
+                datasets: [{ data: [1], backgroundColor: ['#36A2EB'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Worker Safety Incidents' } }, scales: { y: { beginAtZero: true } } }
+            };
+            break;
+          case 'energyEfficiency':
+            config = {
+              type: 'bar',
+              data: {
+                labels: ['Luminous Efficacy (lm/W)'],
+                datasets: [{ data: [15], backgroundColor: ['#FFCE56'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Energy Efficiency' } }, scales: { y: { beginAtZero: true } } }
+            };
+            break;
+          case 'globalWarming':
+            config = {
+              type: 'line',
+              data: {
+                labels: ['Lifecycle'],
+                datasets: [{ label: 'Global Warming Potential (CO₂-eq)', data: [80], fill: false, borderColor: '#36A2EB' }]
+              },
+              options: { plugins: { title: { display: true, text: 'Global Warming Potential' } } }
+            };
+            break;
+          case 'pollutionReduction':
+            config = {
+              type: 'doughnut',
+              data: {
+                labels: ['Potential Reduction','Remaining'],
+                datasets: [{ data: [10,90], backgroundColor: ['#36A2EB','#FF6384'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Pollution Reduction Potential' } } }
+            };
+            break;
+          default:
+            return;
+        }
+      } else if (product === 'led') {
+        switch(metric) {
+          case 'livesSaved':
+            config = {
+              type: 'pie',
+              data: {
+                labels: ['Automation','Safety Training','Design Improvements'],
+                datasets: [{ data: [60,25,15], backgroundColor: ['#FF6384','#36A2EB','#FFCE56'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Factors Contributing to Safety' } } }
+            };
+            break;
+          case 'energyPerBulb':
+            config = {
+              type: 'bar',
+              data: {
+                labels: ['Chip','Driver','Cooling'],
+                datasets: [{ data: [3,4,3], backgroundColor: ['#4BC0C0','#FFCE56','#FF6384'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Energy Distribution in LED Production' } }, scales: { y: { beginAtZero: true } } }
+            };
+            break;
+          case 'co2PerUnit':
+            config = {
+              type: 'line',
+              data: {
+                labels: ['2000','2005','2010','2015','2020'],
+                datasets: [{ label: 'CO₂ (kg)', data: [0.1,0.1,0.1,0.1,0.1], fill: false, borderColor: '#36A2EB', tension: 0.1 }]
+              },
+              options: { plugins: { title: { display: true, text: 'CO₂ Emissions Trend' } } }
+            };
+            break;
+          case 'recyclingRate':
+            config = {
+              type: 'doughnut',
+              data: {
+                labels: ['Recycled','Not Recycled'],
+                datasets: [{ data: [80,20], backgroundColor: ['#36A2EB','#FF6384'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Recycling Efficiency' } } }
+            };
+            break;
+          case 'lifecycleCost':
+            config = {
+              type: 'bar',
+              data: {
+                labels: ['Manufacturing','Operation','Disposal'],
+                datasets: [{ data: [0.005,0.003,0.002], backgroundColor: ['#FFCE56','#36A2EB','#FF6384'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Lifecycle Cost Breakdown ($/unit)' } }, scales: { y: { beginAtZero: true } } }
+            };
+            break;
+          default:
+            return;
+        }
+      } else if (product === 'fluorescent') {
+        switch(metric) {
+          case 'livesImpacted':
+            config = {
+              type: 'pie',
+              data: {
+                labels: ['Improved Safety','Reduced Hazard Exposure','Automation'],
+                datasets: [{ data: [50,30,20], backgroundColor: ['#FF6384','#36A2EB','#FFCE56'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Safety Improvements' } } }
+            };
+            break;
+          case 'energyPerBulb':
+            config = {
+              type: 'bar',
+              data: {
+                labels: ['Ballast','Tube','Starter'],
+                datasets: [{ data: [10,12,8], backgroundColor: ['#4BC0C0','#FFCE56','#FF6384'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Energy Distribution in Fluorescent Production' } }, scales: { y: { beginAtZero: true } } }
+            };
+            break;
+          case 'co2PerUnit':
+            config = {
+              type: 'line',
+              data: {
+                labels: ['1932','1947','1960','1978','1989','2003','2015'],
+                datasets: [{ label: 'CO₂ (kg)', data: [0.4,0.4,0.4,0.4,0.4,0.4,0.4], fill: false, borderColor: '#36A2EB', tension: 0.1 }]
+              },
+              options: { plugins: { title: { display: true, text: 'CO₂ Emissions Trend' } } }
+            };
+            break;
+          case 'recyclingRate':
+            config = {
+              type: 'doughnut',
+              data: {
+                labels: ['Recycled','Not Recycled'],
+                datasets: [{ data: [50,50], backgroundColor: ['#36A2EB','#FF6384'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Recycling Efficiency' } } }
+            };
+            break;
+          case 'lifecycleCost':
+            config = {
+              type: 'bar',
+              data: {
+                labels: ['Manufacturing','Operation','Disposal'],
+                datasets: [{ data: [0.05,0.03,0.02], backgroundColor: ['#FFCE56','#36A2EB','#FF6384'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Lifecycle Cost Breakdown ($/unit)' } }, scales: { y: { beginAtZero: true } } }
+            };
+            break;
+          default:
+            return;
+        }
+      } else if (product === 'halogen') {
+        switch(metric) {
+          case 'livesAffected':
+            config = {
+              type: 'pie',
+              data: {
+                labels: ['Process Safety','Material Handling','Equipment Safety'],
+                datasets: [{ data: [40,35,25], backgroundColor: ['#FF6384','#36A2EB','#FFCE56'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Factors Affecting Safety' } } }
+            };
+            break;
+          case 'energyPerBulb':
+            config = {
+              type: 'bar',
+              data: {
+                labels: ['Assembly','Gas Injection','Wiring'],
+                datasets: [{ data: [25,30,20], backgroundColor: ['#4BC0C0','#FFCE56','#FF6384'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Energy Distribution in Halogen Production' } }, scales: { y: { beginAtZero: true } } }
+            };
+            break;
+          case 'co2PerUnit':
+            config = {
+              type: 'line',
+              data: {
+                labels: ['1968','1974','1980','1992','2000','2010','2021'],
+                datasets: [{ label: 'CO₂ (kg)', data: [1.0,1.0,1.0,1.0,1.0,1.0,1.0], fill: false, borderColor: '#36A2EB', tension: 0.1 }]
+              },
+              options: { plugins: { title: { display: true, text: 'CO₂ Emissions Trend' } } }
+            };
+            break;
+          case 'recyclingRate':
+            config = {
+              type: 'doughnut',
+              data: {
+                labels: ['Recycled','Not Recycled'],
+                datasets: [{ data: [40,60], backgroundColor: ['#36A2EB','#FF6384'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Recycling Efficiency' } } }
+            };
+            break;
+          case 'lifecycleCost':
+            config = {
+              type: 'bar',
+              data: {
+                labels: ['Manufacturing','Operation','Disposal'],
+                datasets: [{ data: [0.12,0.05,0.03], backgroundColor: ['#FFCE56','#36A2EB','#FF6384'] }]
+              },
+              options: { plugins: { title: { display: true, text: 'Lifecycle Cost Breakdown ($/unit)' } }, scales: { y: { beginAtZero: true } } }
+            };
+            break;
+          default:
+            return;
+        }
+      }
+      if (config && !impactCharts[canvasId]) {
+        impactCharts[canvasId] = new Chart(ctx, config);
+      }
+    }
+    document.querySelectorAll('.impact-list details').forEach(detail => {
+      detail.addEventListener('toggle', function() {
+        if (this.open) {
+          const li = this.parentElement;
+          const metric = li.getAttribute('data-metric');
+          const impactContainer = this.closest('.impact-content');
+          let product = 'incandescent';
+          if (impactContainer.parentElement.id.startsWith('led')) {
+            product = 'led';
+          } else if (impactContainer.parentElement.id.startsWith('flu')) {
+            product = 'fluorescent';
+          } else if (impactContainer.parentElement.id.startsWith('hal')) {
+            product = 'halogen';
+          }
+          const canvas = this.querySelector('canvas');
+          if (canvas && !canvas.hasAttribute('data-initialized')) {
+            initImpactChart(product, metric, canvas.id);
+            canvas.setAttribute('data-initialized', 'true');
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
