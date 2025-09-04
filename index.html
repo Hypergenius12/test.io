@@ -1,2320 +1,2236 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bulb Process Visualization</title>
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <!-- MarkerCluster CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
-  <!-- Chart.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js"></script>
-  <!-- Leaflet and MarkerCluster Plugins -->
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+  <meta charset="UTF-8">
+  <title>Cosmic Bullet Hell – Ultimate Boss Challenge</title>
   <style>
-    /* ===== Base & Theming Variables ===== */
-    :root {
-      /* Classic Theme (default) */
-      --classic-bg: linear-gradient(135deg, #fceabb, #f8b500);
-      --classic-text: #333;
-      --classic-content-bg: rgba(255,255,255,0.95);
-      --classic-border-gradient: linear-gradient(45deg, #f39c12, #e67e22, #d35400);
-      --classic-primary-btn: #f0a500;
-      --classic-primary-btn-hover: #d18e00;
-      --classic-primary-btn-active: #c27c00;
-      --classic-menu-btn: #f8c471;
-      --classic-menu-btn-hover: #f1c40f;
-      --classic-menu-btn-active: #f39c12;
-      
-      /* Dark Theme */
-      --dark-bg: #222;
-      --dark-text: #f8f8f8;
-      --dark-content-bg: #333;
-      --dark-border-gradient: linear-gradient(45deg, #555, #888, #aaa);
-      
-      /* Blue Theme */
-      --blue-bg: linear-gradient(135deg, #dbe9f4, #8eb0d5);
-      --blue-text: #333;
-      --blue-content-bg: #fff;
-      --blue-border-gradient: linear-gradient(45deg, #6aaddc, #4a90e2, #357ab7);
-      
-      /* Green Theme */
-      --green-bg: linear-gradient(135deg, #d0f0c0, #a3d9a5);
-      --green-text: #2e4d2e;
-      --green-content-bg: #f0fff0;
-      --green-border-gradient: linear-gradient(45deg, #66bb6a, #43a047, #2e7d32);
-      
-      /* Red Theme */
-      --red-bg: linear-gradient(135deg, #ffd1dc, #ff7f7f);
-      --red-text: #660000;
-      --red-content-bg: #fff5f5;
-      --red-border-gradient: linear-gradient(45deg, #ff5252, #ff1744, #d50000);
-    }
-    /* Default to Classic Theme */
-    body.theme-classic {
-      background: var(--classic-bg);
-      color: var(--classic-text);
-    }
-    body.theme-classic .content-wrapper {
-      background: var(--classic-content-bg);
-      border-image: var(--classic-border-gradient) 1;
-    }
-    body.theme-classic #productSwitcher button {
-      background: var(--classic-primary-btn);
-      color: #fff;
-    }
-    body.theme-classic #productSwitcher button:hover {
-      background: var(--classic-primary-btn-hover);
-    }
-    body.theme-classic #productSwitcher button.active {
-      background: var(--classic-primary-btn-active);
-    }
-    body.theme-classic .internal-menu button {
-      background: var(--classic-menu-btn);
-      color: var(--classic-text);
-    }
-    body.theme-classic .internal-menu button:hover {
-      background: var(--classic-menu-btn-hover);
-    }
-    body.theme-classic .internal-menu button.active {
-      background: var(--classic-menu-btn-active);
-      color: #fff;
-    }
-    /* Dark Theme */
-    body.theme-dark {
-      background: var(--dark-bg);
-      color: var(--dark-text);
-    }
-    body.theme-dark .content-wrapper {
-      background: var(--dark-content-bg);
-      border-image: var(--dark-border-gradient) 1;
-    }
-    body.theme-dark #productSwitcher button {
-      background: #444;
-      color: #fff;
-    }
-    body.theme-dark #productSwitcher button:hover {
-      background: #555;
-    }
-    body.theme-dark #productSwitcher button.active {
-      background: #04AA6D;
-    }
-    body.theme-dark .internal-menu button {
-      background: #555;
-      color: var(--dark-text);
-    }
-    body.theme-dark .internal-menu button:hover {
-      background: #666;
-    }
-    body.theme-dark .internal-menu button.active {
-      background: #04AA6D;
-      color: #fff;
-    }
-    /* Blue Theme */
-    body.theme-blue {
-      background: var(--blue-bg);
-      color: var(--blue-text);
-    }
-    body.theme-blue .content-wrapper {
-      background: var(--blue-content-bg);
-      border-image: var(--blue-border-gradient) 1;
-    }
-    body.theme-blue #productSwitcher button {
-      background: #4a90e2;
-      color: #fff;
-    }
-    body.theme-blue #productSwitcher button:hover {
-      background: #357ab7;
-    }
-    body.theme-blue #productSwitcher button.active {
-      background: #2d5f9a;
-    }
-    body.theme-blue .internal-menu button {
-      background: #8eb0d5;
-      color: var(--blue-text);
-    }
-    body.theme-blue .internal-menu button:hover {
-      background: #7aa0c9;
-    }
-    body.theme-blue .internal-menu button.active {
-      background: #4a90e2;
-      color: #fff;
-    }
-    /* Green Theme */
-    body.theme-green {
-      background: var(--green-bg);
-      color: var(--green-text);
-    }
-    body.theme-green .content-wrapper {
-      background: var(--green-content-bg);
-      border-image: var(--green-border-gradient) 1;
-    }
-    body.theme-green #productSwitcher button {
-      background: #66bb6a;
-      color: #fff;
-    }
-    body.theme-green #productSwitcher button:hover {
-      background: #43a047;
-    }
-    body.theme-green #productSwitcher button.active {
-      background: #2e7d32;
-    }
-    body.theme-green .internal-menu button {
-      background: #a5d6a7;
-      color: var(--green-text);
-    }
-    body.theme-green .internal-menu button:hover {
-      background: #81c784;
-    }
-    body.theme-green .internal-menu button.active {
-      background: #66bb6a;
-      color: #fff;
-    }
-    /* Red Theme */
-    body.theme-red {
-      background: var(--red-bg);
-      color: var(--red-text);
-    }
-    body.theme-red .content-wrapper {
-      background: var(--red-content-bg);
-      border-image: var(--red-border-gradient) 1;
-    }
-    body.theme-red #productSwitcher button {
-      background: #ff5252;
-      color: #fff;
-    }
-    body.theme-red #productSwitcher button:hover {
-      background: #ff1744;
-    }
-    body.theme-red #productSwitcher button.active {
-      background: #d50000;
-    }
-    body.theme-red .internal-menu button {
-      background: #ff8a80;
-      color: var(--red-text);
-    }
-    body.theme-red .internal-menu button:hover {
-      background: #ff5252;
-    }
-    body.theme-red .internal-menu button.active {
-      background: #ff1744;
-      color: #fff;
-    }
-    /* ===== Global Styles ===== */
-    body {
+    /* Global Styles */
+    html, body {
       margin: 0;
-      font-family: Arial, sans-serif;
-    }
-    .content-wrapper {
-      margin: 20px;
-      padding: 20px;
-      border: 5px solid;
-      border-radius: 15px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.3);
-    }
-    /* ===== Theme Switcher ===== */
-    #themeSwitcher {
-      text-align: center;
-      margin: 10px;
-    }
-    #themeSwitcher button {
-      background: #888;
-      color: #fff;
-      border: none;
-      padding: 8px 16px;
-      margin: 0 5px;
-      cursor: pointer;
-      border-radius: 4px;
-      transition: background 0.3s;
-    }
-    #themeSwitcher button:hover {
-      background: #666;
-    }
-    /* ===== Top-Level Product Switcher ===== */
-    #productSwitcher {
-      background-color: #222;
-      padding: 10px;
-      text-align: center;
-      border-radius: 10px;
-      margin-bottom: 20px;
-    }
-    #productSwitcher button {
-      padding: 10px 20px;
-      margin: 0 10px;
-      cursor: pointer;
-      font-size: 16px;
-      border-radius: 4px;
-      transition: background 0.3s;
-    }
-    /* ===== Product Content & Internal Menu ===== */
-    .product-content {
-      display: none;
-      padding: 10px;
-    }
-    .product-content.active {
-      display: block;
-      animation: fadeIn 0.5s ease-in;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    .internal-menu {
-      background-color: #333;
       overflow: hidden;
-      margin-bottom: 10px;
-      border-radius: 5px;
+      background: radial-gradient(ellipse at center, #001, #000);
+      user-select: none;
+      font-family: 'Orbitron', sans-serif;
     }
-    .internal-menu button {
-      float: left;
-      padding: 10px 15px;
-      border: none;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.3s;
-    }
-    .tab-content {
-      display: none;
-      padding: 10px;
-      clear: both;
-    }
-    .tab-content.active {
+    /* Cursor visibility based on game state */
+    canvas {
       display: block;
-      animation: fadeIn 0.5s ease-in;
+      image-rendering: pixelated;
     }
-    /* ===== Map, Legend, and Facility Info ===== */
-    .map-container {
-      width: 100%;
-      height: 500px;
-      border: 2px solid #04AA6D;
-      margin-bottom: 10px;
-      position: relative;
-      border-radius: 10px;
-      overflow: hidden;
+    body.menu-active canvas {
+      cursor: default;
     }
-    .custom-div-icon {
-      background: #ff6600;
-      color: #fff;
-      font-weight: bold;
-      text-align: center;
-      line-height: 30px;
-      border-radius: 50%;
-      border: 2px solid #fff;
-      width: 30px;
-      height: 30px;
+    body.playing canvas {
+      cursor: none;
     }
-    .legend {
-      background: white;
-      padding: 10px;
-      line-height: 1.5;
-      color: #333;
-      border: 1px solid #ccc;
-      width: 240px;
+    
+    /* Menu Overlay */
+    #menu {
       position: absolute;
-      bottom: 30px;
-      left: 10px;
-      z-index: 1000;
-      font-size: 14px;
-      border-radius: 5px;
-    }
-    .facility-info {
-      padding: 10px;
-      background: #fff;
-      border: 1px solid #ccc;
-      margin-top: 10px;
-      border-radius: 5px;
-    }
-    .facility-info img {
-      max-width: 300px;
-      display: block;
-      margin-top: 10px;
-      border: 2px solid #04AA6D;
-      border-radius: 5px;
-    }
-    /* ===== Graphs Container ===== */
-    .graph-container {
-      width: 90%;
-      max-width: 1000px;
-      margin: 20px auto;
-      background: #fff;
-      padding: 20px;
-      border: 1px solid #ddd;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      border-radius: 10px;
-    }
-    canvas { max-width: 100%; }
-    /* ===== Parts List ===== */
-    .parts-list {
-      width: 90%;
-      max-width: 1000px;
-      margin: 20px auto;
-      background: #fff;
-      padding: 20px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-    }
-    .part-item {
-      padding: 10px;
-      border: 1px solid #ccc;
-      margin-bottom: 5px;
-      cursor: pointer;
-      background: #fafafa;
-      transition: background 0.3s;
-      border-radius: 5px;
-    }
-    .part-item:hover {
-      background: #e0f7e9;
-    }
-    .part-details {
-      display: none;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #04AA6D;
-      background: #e9f7ef;
-      border-radius: 5px;
-    }
-    /* ===== Timeline / History ===== */
-    .timeline {
-      position: relative;
-      max-width: 1200px;
-      margin: 40px auto;
-    }
-    .timeline::after {
-      content: '';
-      position: absolute;
-      width: 6px;
-      background-color: #04AA6D;
       top: 0;
-      bottom: 0;
-      left: 50%;
-      margin-left: -3px;
-    }
-    .timeline-item {
-      padding: 10px 40px;
-      position: relative;
-      background: #fff;
-      width: 50%;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,40,0.95);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      text-shadow: 0 0 10px rgba(0,0,0,0.8);
+      padding: 10px;
       box-sizing: border-box;
+    }
+    #menu h1 {
+      font-size: 3em;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    #menu p {
       margin-bottom: 20px;
-      border-radius: 5px;
+      text-align: center;
     }
-    .timeline-item.left { left: 0; }
-    .timeline-item.right { left: 50%; }
-    .timeline-item::after {
-      content: '';
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      background-color: #fff;
-      border: 4px solid #04AA6D;
-      top: 15px;
-      border-radius: 50%;
-      z-index: 1;
+    #boss-select, #all-bosses-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      width: 90%;
+      max-width: 800px;
+      margin-bottom: 20px;
     }
-    .timeline-item.left::after { right: -10px; }
-    .timeline-item.right::after { left: -10px; }
-    .timeline-item h3 { margin-top: 0; }
-    /* ===== Description Content ===== */
-    .description-content {
-      max-width: 1000px;
-      margin: 20px auto;
-      background: #fff;
-      padding: 20px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-    }
-    /* ===== Impact Tab with Dropdowns ===== */
-    .impact-content {
-      max-width: 1000px;
-      margin: 20px auto;
-      background: #fff;
-      padding: 20px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-    }
-    .impact-list {
-      list-style: none;
-      padding: 0;
-    }
-    .impact-list li {
-      margin: 10px 0;
-    }
-    .impact-list details {
-      background: #fff8e1;
-      border: 1px solid #fbc02d;
-      border-radius: 5px;
-      padding: 5px 10px;
-      transition: background 0.3s;
-    }
-    .impact-list details[open] {
-      background: #fffde7;
-    }
-    .impact-list summary {
+    #boss-select button {
+      background: linear-gradient(145deg, #444, #222);
+      border: 2px solid #666;
+      border-radius: 8px;
+      color: #fff;
+      padding: 10px;
+      font-size: 0.9em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      word-wrap: break-word;
+      box-shadow: 3px 3px 8px #000;
+      transition: all 0.25s ease;
       cursor: pointer;
+    }
+    #boss-select button:hover {
+      background: linear-gradient(145deg, #555, #333);
+      transform: scale(1.05);
+    }
+    #boss-select .boss-name {
       font-weight: bold;
     }
-    .impact-dropdown {
-      margin-top: 10px;
+    #boss-select .boss-desc {
+      font-size: 0.7em;
+      color: #ccc;
+      margin-top: 5px;
+      text-align: center;
     }
-    /* ===== Other Tab Content ===== */
-    .other-content {
-      max-width: 1000px;
-      margin: 20px auto;
-      background: #e8f5e9;
+    #all-bosses-container button, #retry {
+      background: linear-gradient(145deg, #444, #222);
+      border: 2px solid #666;
+      border-radius: 8px;
+      color: #fff;
+      padding: 10px;
+      font-size: 1em;
+      box-shadow: 3px 3px 8px #000;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+    #all-bosses-container button:hover, #retry:hover {
+      background: linear-gradient(145deg, #555, #333);
+      transform: scale(1.05);
+    }
+    #retry {
+      margin-top: 20px;
+    }
+    #menu p:last-of-type {
+      font-size: 0.9em;
+    }
+    @media (max-width: 600px) {
+      #boss-select button {
+        font-size: 0.75em;
+        padding: 5px;
+      }
+    }
+    
+    /* Ship Selection Menu */
+    #ship-menu {
+      position: absolute;
+      top: 10%;
+      right: 0;
+      width: 300px;
+      height: 90%;
+      background: rgba(0,0,40,0.98);
+      color: #fff;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      z-index: 20;
+      overflow-y: auto;
       padding: 20px;
-      border: 1px solid #c5e1a5;
-      border-radius: 10px;
+      box-sizing: border-box;
+    }
+    #ship-menu h2 {
+      margin-bottom: 15px;
+    }
+    #ship-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      width: 100%;
+    }
+    #ship-list button {
+      background: linear-gradient(145deg, #444, #222);
+      border: 2px solid #666;
+      border-radius: 8px;
+      color: #fff;
+      padding: 10px;
+      font-size: 0.9em;
+      box-shadow: 3px 3px 8px #000;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+    #ship-list button:hover {
+      background: linear-gradient(145deg, #555, #333);
+      transform: scale(1.05);
+    }
+    #close-ship-menu {
+      margin-top: 20px;
+      background: #f55;
     }
   </style>
 </head>
-<body class="theme-classic">
-  <!-- ===== Theme Switcher ===== -->
-  <div id="themeSwitcher">
-    <button onclick="switchTheme('theme-classic')">Classic</button>
-    <button onclick="switchTheme('theme-dark')">Dark</button>
-    <button onclick="switchTheme('theme-blue')">Blue</button>
-    <button onclick="switchTheme('theme-green')">Green</button>
-    <button onclick="switchTheme('theme-red')">Red</button>
+<body class="menu-active">
+  <!-- Menu Overlay -->
+  <div id="menu">
+    <h1>Cosmic Boss Fights</h1>
+    <p>Select a Boss to Challenge</p>
+    <div id="boss-select">
+      <!-- Each boss button includes a short description -->
+      <button data-boss="0" data-desc="Large, slow bullets in a 30° splash">
+        <span class="boss-name">Magma Maw</span>
+        <span class="boss-desc">Large, slow bullets</span>
+      </button>
+      <button data-boss="1" data-desc="Star bullets explode into huge slowing blasts">
+        <span class="boss-name">Frostbite</span>
+        <span class="boss-desc">Explosive stars</span>
+      </button>
+      <button data-boss="2" data-desc="Thick, glowing lasers that flash on/off">
+        <span class="boss-name">Electro Warden</span>
+        <span class="boss-desc">Disco lasers</span>
+      </button>
+      <button data-boss="3" data-desc="Goes invisible, flashes then fires in a + pattern">
+        <span class="boss-name">Shadow Reaver</span>
+        <span class="boss-desc">Invisibility & flash</span>
+      </button>
+      <button data-boss="4" data-desc="Giant rainbow bullet circle with varied sizes">
+        <span class="boss-name">Celestial Nova</span>
+        <span class="boss-desc">Rainbow barrage</span>
+      </button>
+      <button data-boss="5" data-desc="Extra HP; fires a massive half‑hemisphere bullet">
+        <span class="boss-name">Ironclad</span>
+        <span class="boss-desc">Massive shot</span>
+      </button>
+      <button data-boss="6" data-desc="Poison bullets that cancel your bullets">
+        <span class="boss-name">Venom Viper</span>
+        <span class="boss-desc">Poison & counter</span>
+      </button>
+      <button data-boss="7" data-desc="Bouncy bullets with periodic dangerous lightning">
+        <span class="boss-name">Stormbringer</span>
+        <span class="boss-desc">Lightning & bounce</span>
+      </button>
+      <button data-boss="8" data-desc="Faster reload; fires in a 200° arc; bullets grow over time">
+        <span class="boss-name">Blaze Fury</span>
+        <span class="boss-desc">Wide, growing burst</span>
+      </button>
+      <button data-boss="9" data-desc="Teleports randomly; fires a shotgun burst">
+        <span class="boss-name">Abyssal Oracle</span>
+        <span class="boss-desc">Teleport & shotgun</span>
+      </button>
+      <button data-boss="10" data-desc="Random speeds; flashes rainbow; sine-moving bullets">
+        <span class="boss-name">Chrono Shifter</span>
+        <span class="boss-desc">Rainbow chaos</span>
+      </button>
+      <button data-boss="11" data-desc="Chases you fast; knockback on hit; fires homing impact shots">
+        <span class="boss-name">Smasher</span>
+        <span class="boss-desc">Aggressive chase</span>
+      </button>
+      <button data-boss="12" data-desc="Shoots one MASSIVE, slow-moving bullet">
+        <span class="boss-name">Arcane Titan</span>
+        <span class="boss-desc">Huge projectile</span>
+      </button>
+      <button data-boss="13" data-desc="Huge & slow; fires rapid small homing bullets">
+        <span class="boss-name">Lunar Empress</span>
+        <span class="boss-desc">Rapid homing</span>
+      </button>
+      <button data-boss="14" data-desc="Sun-like bullets with a damaging aura">
+        <span class="boss-name">Solar Sentinel</span>
+        <span class="boss-desc">Solar aura</span>
+      </button>
+      <button data-boss="15" data-desc="Spawns mini drones that chase & shoot">
+        <span class="boss-name">Drone Commander</span>
+        <span class="boss-desc">Mini drones</span>
+      </button>
+      <button data-boss="16" data-desc="Bullets with gravitational pull and repulsion">
+        <span class="boss-name">Gravity Harbinger</span>
+        <span class="boss-desc">Gravity control</span>
+      </button>
+      <button data-boss="17" data-desc="Chaotic 40° spread in a tangent pattern">
+        <span class="boss-name">Plasma Overlord</span>
+        <span class="boss-desc">Tangent chaos</span>
+      </button>
+      <button data-boss="18" data-desc="Drops mines with a large glowing aura">
+        <span class="boss-name">Biohazard</span>
+        <span class="boss-desc">Glowing mines</span>
+      </button>
+      <button data-boss="19" data-desc="Very fast; slows your bullets; resets arena position">
+        <span class="boss-name">Time Warden</span>
+        <span class="boss-desc">Temporal trickery</span>
+      </button>
+      <button data-boss="20" data-desc="Segmented worm firing a liquid-like stream from its head">
+        <span class="boss-name">Nebula Serpent</span>
+        <span class="boss-desc">Wiggly & liquid</span>
+      </button>
+      <button data-boss="21" data-desc="Spawns mines randomly; fires rapidly but weakly">
+        <span class="boss-name">Cosmic Howler</span>
+        <span class="boss-desc">Random mines</span>
+      </button>
+      <button data-boss="22" data-desc="Occasionally spawns an insta-kill dot behind it">
+        <span class="boss-name">Void Reaper</span>
+        <span class="boss-desc">Deadly dot</span>
+      </button>
+      <button data-boss="23" data-desc="Predictive shots based on future player movement">
+        <span class="boss-name">Galactic Scorcher</span>
+        <span class="boss-desc">Predictive fire</span>
+      </button>
+      <button data-boss="24" data-desc="Lays mines that pull in/destroy your bullets; double shotgun burst">
+        <span class="boss-name">Star Eater</span>
+        <span class="boss-desc">Sucking mines</span>
+      </button>
+      <button data-boss="25" data-desc="Semi-transparent; ultra-fast reload; weaker bullets">
+        <span class="boss-name">Quasar Phantom</span>
+        <span class="boss-desc">Phantom fury</span>
+      </button>
+      <button data-boss="26" data-desc="Shotgun extra-large bullets that explode into fragments">
+        <span class="boss-name">Meteor Menace</span>
+        <span class="boss-desc">Explosive shotgun</span>
+      </button>
+      <button data-boss="27" data-desc="Sucks you in and chases; shooting it knocks it back">
+        <span class="boss-name">Black Hole Baron</span>
+        <span class="boss-desc">Suction chase</span>
+      </button>
+      <button data-boss="28" data-desc="Every 10 sec launches a super bomb clearing your mines/bullets">
+        <span class="boss-name">Supernova Spirit</span>
+        <span class="boss-desc">Clearing bomb</span>
+      </button>
+      <button data-boss="29" data-desc="Shotgun bullets with a pulsing, damaging aura">
+        <span class="boss-name">Aurora Wraith</span>
+        <span class="boss-desc">Pulsing shotgun</span>
+      </button>
+      <button data-boss="30" data-desc="Giant bullets explode into chain fragments">
+        <span class="boss-name">Comet Crusher</span>
+        <span class="boss-desc">Explosive chain</span>
+      </button>
+      <button data-boss="31" data-desc="Fires homing missiles that bounce and explode">
+        <span class="boss-name">Stellar Crusader</span>
+        <span class="boss-desc">Homing missiles</span>
+      </button>
+      <button data-boss="32" data-desc="Shoots orbiting bullets that break off to chase you">
+        <span class="boss-name">Orbiting Oracle</span>
+        <span class="boss-desc">Orbit then chase</span>
+      </button>
+      <button data-boss="33" data-desc="Interstellar Marauder – the most stylish boss">
+        <span class="boss-name">Interstellar Marauder</span>
+        <span class="boss-desc">The ultimate boss</span>
+      </button>
+      <button data-boss="34" data-desc="Duplicates itself every 10 sec; clone fires homing bombs">
+        <span class="boss-name">Celestial Conqueror</span>
+        <span class="boss-desc">Duplicate mayhem</span>
+      </button>
+      <button data-boss="35" data-desc="All-in-one giant boss; hardest but fires rarely">
+        <span class="boss-name">Apocalypse</span>
+        <span class="boss-desc">Ultimate challenge</span>
+      </button>
+      <button data-boss="36" data-desc="Mace Smasher – swings a mace and fires small projectiles">
+        <span class="boss-name">Mace Smasher</span>
+        <span class="boss-desc">Swinging mace</span>
+      </button>
+      <button data-boss="37" data-desc="Chaos – spawns all bosses (except Apocalypse) and enlarges arena">
+        <span class="boss-name">Chaos</span>
+        <span class="boss-desc">Multi-boss mayhem</span>
+      </button>
+    </div>
+    <div id="all-bosses-container">
+      <button id="playAll">Play All Bosses</button>
+    </div>
+    <button id="retry" style="display:none;">Retry</button>
+    <p>[Hold left mouse or press SPACE to fire • Press M to drop a mine]</p>
   </div>
   
-  <div class="content-wrapper">
-    <!-- ===== Top-Level Product Switcher ===== -->
-    <div id="productSwitcher">
-      <button class="product-tab active" data-product="incandescent">Incandescent</button>
-      <button class="product-tab" data-product="led">LED</button>
-      <button class="product-tab" data-product="fluorescent">Fluorescent</button>
-      <button class="product-tab" data-product="halogen">Halogen</button>
-      <button class="product-tab" data-product="other">Other</button>
+  <!-- Ship Selection Overlay -->
+  <div id="ship-menu">
+    <h2>Select Your Ship</h2>
+    <div id="ship-list">
+      <!-- Ships are populated dynamically -->
     </div>
+    <button id="close-ship-menu">Close</button>
+  </div>
 
-    <!-- ================== Incandescent Product ================== -->
-    <div id="incandescent" class="product-content active">
-      <div class="internal-menu">
-        <button class="internal-tab-button active" data-tab="incMap">Map</button>
-        <button class="internal-tab-button" data-tab="incGraphs">Graphs</button>
-        <button class="internal-tab-button" data-tab="incParts">Parts List</button>
-        <button class="internal-tab-button" data-tab="incHistory">History</button>
-        <button class="internal-tab-button" data-tab="incDescription">Description</button>
-        <button class="internal-tab-button" data-tab="incImpact">Impact</button>
-      </div>
-      <!-- Map Tab -->
-      <div id="incMap" class="tab-content active">
-        <div id="incMapContainer" class="map-container"></div>
-        <div id="incFacilityInfo" class="facility-info">
-          <h3>Facility Details</h3>
-          <p>Click a numbered marker on the map to view facility information.</p>
-        </div>
-        <div class="legend">
-          <strong>Map Key</strong>
-          <p><span style="color: red;">●</span> Production Sites</p>
-          <p><span style="color: blue;">●</span> Transportation Hubs</p>
-          <p><span style="color: green;">●</span> Assembly Plants</p>
-          <p><span style="color: purple;">●</span> R&amp;D Centers</p>
-          <p><span style="color: orange;">●</span> Small Stops</p>
-        </div>
-      </div>
-      <!-- Graphs Tab -->
-      <div id="incGraphs" class="tab-content">
-        <div class="graph-container">
-          <canvas id="incCostChart"></canvas>
-        </div>
-        <div class="graph-container">
-          <canvas id="incCO2Chart"></canvas>
-        </div>
-        <div class="graph-container">
-          <canvas id="incEnergyChart"></canvas>
-        </div>
-        <div class="graph-container">
-          <canvas id="incProductionChart"></canvas>
-        </div>
-        <div class="graph-container">
-          <canvas id="incRadarChart"></canvas>
-        </div>
-        <div class="graph-container">
-          <canvas id="incEnvChart"></canvas>
-        </div>
-      </div>
-      <!-- Parts List Tab -->
-      <div id="incParts" class="tab-content">
-        <div class="parts-list">
-          <div class="part-item" data-part="filament">
-            <strong>Filament (Tungsten)</strong>
-          </div>
-          <div class="part-details" id="inc-details-filament">
-            <h3>Filament (Tungsten)</h3>
-            <p>The tungsten filament is produced using a high-precision wire drawing process followed by annealing. This is the primary light source and its efficiency directly affects bulb performance.</p>
-            <p><strong>Manufacturing Process:</strong> Tungsten rods are drawn into fine wires, then coiled and heat-treated to optimize brightness and durability.</p>
-            <p><strong>Functionality:</strong> Electrical current heats the filament to incandescence, emitting a continuous spectrum of light.</p>
-            <p><strong>Environmental Impact:</strong> High energy input and specialized furnaces contribute to its carbon footprint.</p>
-          </div>
-          <div class="part-item" data-part="glassbulb">
-            <strong>Glass Bulb</strong>
-          </div>
-          <div class="part-details" id="inc-details-glassbulb">
-            <h3>Glass Bulb</h3>
-            <p>The glass enclosure is created through automated glass blowing and molding. It protects the filament and maintains a controlled atmosphere inside the bulb.</p>
-            <p><strong>Manufacturing Process:</strong> Molten glass is shaped using high‑temperature molds and rapidly cooled to minimize defects.</p>
-            <p><strong>Quality Assurance:</strong> Each bulb is inspected for clarity, uniformity, and strength.</p>
-          </div>
-          <div class="part-item" data-part="base">
-            <strong>Metal Base</strong>
-          </div>
-          <div class="part-details" id="inc-details-base">
-            <h3>Metal Base</h3>
-            <p>The base is fabricated from high‑quality alloys like brass or aluminum. It is precision stamped and machined to ensure a secure connection.</p>
-            <p><strong>Manufacturing Process:</strong> Includes stamping, machining, and anti‑corrosion plating.</p>
-            <p><strong>Functionality:</strong> Completes the electrical circuit and provides physical stability.</p>
-          </div>
-          <div class="part-item" data-part="inertgas">
-            <strong>Inert Gas Fill</strong>
-          </div>
-          <div class="part-details" id="inc-details-inertgas">
-            <h3>Inert Gas Fill</h3>
-            <p>The bulb is filled with high‑purity argon or nitrogen to prevent oxidation of the filament, thus extending its lifespan.</p>
-            <p><strong>Manufacturing Process:</strong> Gas is injected during the sealing process in a controlled environment.</p>
-          </div>
-          <div class="part-item" data-part="electrode">
-            <strong>Electrodes</strong>
-          </div>
-          <div class="part-details" id="inc-details-electrode">
-            <h3>Electrodes</h3>
-            <p>Electrodes are made from refractory metals to withstand extreme temperatures, ensuring reliable electrical contact.</p>
-            <p><strong>Manufacturing Process:</strong> Involves alloying, precision shaping, and heat-treatment.</p>
-          </div>
-          <div class="part-item" data-part="support">
-            <strong>Internal Support Structure</strong>
-          </div>
-          <div class="part-details" id="inc-details-support">
-            <h3>Internal Support Structure</h3>
-            <p>This structure holds the filament in place and distributes heat evenly to prevent sagging and vibration.</p>
-            <p><strong>Manufacturing Process:</strong> Fabricated from high-temperature resistant materials via precision molding.</p>
-          </div>
-          <div class="part-item" data-part="socket">
-            <strong>Socket Connector</strong>
-          </div>
-          <div class="part-details" id="inc-details-socket">
-            <h3>Socket Connector</h3>
-            <p>The socket ensures a secure electrical connection and physical fit with the light fixture. It is often plated for corrosion resistance.</p>
-            <p><strong>Manufacturing Process:</strong> Precision stamping and surface plating are used.</p>
-          </div>
-          <div class="part-item" data-part="coating">
-            <strong>Reflective Coating</strong>
-          </div>
-          <div class="part-details" id="inc-details-coating">
-            <h3>Reflective Coating</h3>
-            <p>An interior reflective coating maximizes light output by redirecting light that would otherwise be absorbed by the bulb’s envelope.</p>
-            <p><strong>Manufacturing Process:</strong> Applied using vapor deposition for uniformity and durability.</p>
-          </div>
-          <div class="part-item" data-part="qc">
-            <strong>Quality Control Data</strong>
-          </div>
-          <div class="part-details" id="inc-details-qc">
-            <h3>Quality Control Data</h3>
-            <p>Each incandescent bulb undergoes rigorous testing for brightness, efficiency, and durability before it is approved for shipment.</p>
-            <p><strong>Testing Methods:</strong> Automated and manual inspections guarantee only bulbs meeting strict standards are released.</p>
-          </div>
-        </div>
-      </div>
-      <!-- History Tab -->
-      <div id="incHistory" class="tab-content">
-        <div class="timeline">
-          <div class="timeline-item left">
-            <h3>1903</h3>
-            <p>In 1903, Thomas Edison introduces the first commercially viable incandescent bulb. These early bulbs were handcrafted and had very short lifespans, yet they revolutionized indoor lighting.</p>
-          </div>
-          <div class="timeline-item right">
-            <h3>1910</h3>
-            <p>By 1910, improvements in tungsten filament production and glass manufacturing techniques greatly enhance bulb efficiency and lifespan, leading to rapid adoption in urban areas.</p>
-          </div>
-          <div class="timeline-item left">
-            <h3>1925</h3>
-            <p>In 1925, automated production methods allow for large-scale manufacturing of incandescent bulbs, standardizing their design and reducing costs dramatically.</p>
-          </div>
-          <div class="timeline-item right">
-            <h3>1935</h3>
-            <p>By 1935, companies like General Electric have perfected mass production, making incandescent bulbs affordable and widely accessible, spurring electrification around the world.</p>
-          </div>
-          <div class="timeline-item left">
-            <h3>1948</h3>
-            <p>In 1948, innovations in tungsten metallurgy and glass engineering yield bulbs that are significantly brighter and longer-lasting, setting new performance benchmarks.</p>
-          </div>
-          <div class="timeline-item right">
-            <h3>1960</h3>
-            <p>By 1960, research in both the US and Europe refines the production processes further. Bulbs become more reliable and efficient, though they still consume a great deal of energy.</p>
-          </div>
-          <div class="timeline-item left">
-            <h3>1975</h3>
-            <p>In 1975, growing environmental concerns prompt manufacturers to explore recycling and energy‑efficient production methods, laying the groundwork for future innovations.</p>
-          </div>
-          <div class="timeline-item right">
-            <h3>1985</h3>
-            <p>By 1985, improved manufacturing processes reduce the carbon footprint of incandescent bulbs, although energy inefficiency remains a significant drawback.</p>
-          </div>
-          <div class="timeline-item left">
-            <h3>2000</h3>
-            <p>In 2000, the emergence of LED and CFL technologies forces traditional incandescent producers to focus on niche applications and further optimize their processes for reduced environmental impact.</p>
-          </div>
-          <div class="timeline-item right">
-            <h3>2020</h3>
-            <p>By 2020, advanced recycling programs and energy‑efficient production techniques ensure that incandescents meet strict environmental standards, serving specialized markets where their light quality is still desired.</p>
-          </div>
-        </div>
-      </div>
-      <!-- Description Tab -->
-      <div id="incDescription" class="tab-content">
-        <div class="description-content">
-          <h2>About Incandescent Bulbs</h2>
-          <p>Incandescent bulbs produce light by passing an electric current through a tungsten filament, which heats up until it glows. They emit a warm, continuous spectrum of light that many find pleasing and natural.</p>
-          <p>While their simplicity is attractive, incandescents are inefficient compared to newer technologies, as much of the energy is lost as heat. Modern improvements focus on reducing their environmental impact through recycling and more efficient production methods.</p>
-          <p>These bulbs remain popular in applications where the quality of light and color rendering are of primary importance.</p>
-        </div>
-      </div>
-      <!-- Impact Tab with Dropdowns -->
-      <div id="incImpact" class="tab-content">
-        <div class="impact-content">
-          <h2>Environmental &amp; Social Impact – Incandescent</h2>
-          <ul class="impact-list">
-            <li data-metric="livesLost">
-              <details>
-                <summary>Lives lost: 12</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Fatalities during production have historically been attributed to industrial accidents and hazardous conditions.</p>
-                  <canvas id="incImpact_livesLost"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="energyPerBulb">
-              <details>
-                <summary>Energy used per bulb: 60 watts</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Energy consumption covers filament heating and associated manufacturing processes.</p>
-                  <canvas id="incImpact_energyPerBulb"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="co2PerUnit">
-              <details>
-                <summary>CO₂ emissions per unit: 0.8 kg</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: CO₂ emissions are estimated based on energy usage and production efficiency.</p>
-                  <canvas id="incImpact_co2PerUnit"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="waterConsumption">
-              <details>
-                <summary>Water consumption: 15 L</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Water is used during cooling and cleaning in the production process.</p>
-                  <canvas id="incImpact_waterConsumption"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="wasteGenerated">
-              <details>
-                <summary>Waste generated: 0.5 kg</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Waste includes scrap material, defective units, and by-products.</p>
-                  <canvas id="incImpact_wasteGenerated"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="tungstenConsumption">
-              <details>
-                <summary>Tungsten consumption: 0.1 kg</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Tungsten usage is critical for filament production and overall efficiency.</p>
-                  <canvas id="incImpact_tungstenConsumption"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="airPollution">
-              <details>
-                <summary>Air pollution index: 20</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Air quality measures reflect emissions during manufacturing.</p>
-                  <canvas id="incImpact_airPollution"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="recyclingRate">
-              <details>
-                <summary>Recycling rate: 30%</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Recycling initiatives help recover materials and reduce waste.</p>
-                  <canvas id="incImpact_recyclingRate"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="lifespan">
-              <details>
-                <summary>Average lifespan: 1,200 hours</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: The operating life of an incandescent bulb is limited compared to modern alternatives.</p>
-                  <canvas id="incImpact_lifespan"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="productionCost">
-              <details>
-                <summary>Production energy cost: $0.10/unit</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: This cost reflects the energy expenditure during manufacturing.</p>
-                  <canvas id="incImpact_productionCost"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="carbonFootprint">
-              <details>
-                <summary>Carbon footprint per bulb: 5 kg CO₂</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Overall carbon footprint accounts for the entire production lifecycle.</p>
-                  <canvas id="incImpact_carbonFootprint"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="resourceDepletion">
-              <details>
-                <summary>Resource depletion index: 40</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: The resource depletion index is calculated based on raw material usage.</p>
-                  <canvas id="incImpact_resourceDepletion"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="hazardousWaste">
-              <details>
-                <summary>Hazardous waste: 0.05 kg</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Hazardous waste includes toxic by-products from manufacturing.</p>
-                  <canvas id="incImpact_hazardousWaste"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="volatileEmissions">
-              <details>
-                <summary>Emission of volatile compounds: 3 units</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Emissions of volatile compounds are closely monitored in production.</p>
-                  <canvas id="incImpact_volatileEmissions"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="noise">
-              <details>
-                <summary>Noise during production: 60 dB</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Noise levels are measured to ensure safe working conditions.</p>
-                  <canvas id="incImpact_noise"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="workerSafety">
-              <details>
-                <summary>Worker safety incidents: 1 per 100,000 units</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Safety incident rates reflect improvements in production protocols.</p>
-                  <canvas id="incImpact_workerSafety"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="energyEfficiency">
-              <details>
-                <summary>Energy efficiency: 15 lm/W</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Luminous efficacy for incandescent bulbs is relatively low compared to modern alternatives.</p>
-                  <canvas id="incImpact_energyEfficiency"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="globalWarming">
-              <details>
-                <summary>Global warming potential: 80 CO₂-eq</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Global warming potential is calculated on a per-bulb basis.</p>
-                  <canvas id="incImpact_globalWarming"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="pollutionReduction">
-              <details>
-                <summary>Pollution reduction potential: 10%</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Potential to reduce pollution through improved manufacturing practices.</p>
-                  <canvas id="incImpact_pollutionReduction"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="lifecycleCost">
-              <details>
-                <summary>Lifecycle environmental cost: $0.05/unit</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: The total environmental cost over the bulb’s life is estimated here.</p>
-                  <canvas id="incImpact_lifecycleCost"></canvas>
-                </div>
-              </details>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
+  <canvas id="gameCanvas"></canvas>
 
-    <!-- ================== LED Product ================== -->
-    <div id="led" class="product-content">
-      <div class="internal-menu">
-        <button class="internal-tab-button active" data-tab="ledMap">Map</button>
-        <button class="internal-tab-button" data-tab="ledGraphs">Graphs</button>
-        <button class="internal-tab-button" data-tab="ledParts">Parts List</button>
-        <button class="internal-tab-button" data-tab="ledHistory">History</button>
-        <button class="internal-tab-button" data-tab="ledDescription">Description</button>
-        <button class="internal-tab-button" data-tab="ledImpact">Impact</button>
-      </div>
-      <!-- Map Tab -->
-      <div id="ledMap" class="tab-content active">
-        <div id="ledMapContainer" class="map-container"></div>
-        <div id="ledFacilityInfo" class="facility-info">
-          <h3>Facility Details</h3>
-          <p>Click a numbered marker on the map to view facility information.</p>
-        </div>
-        <div class="legend">
-          <strong>Map Key</strong>
-          <p><span style="color: darkred;">●</span> LED Production Sites</p>
-          <p><span style="color: darkgreen;">●</span> Assembly &amp; R&amp;D Centers</p>
-          <p><span style="color: orange;">●</span> Additional Stops</p>
-        </div>
-      </div>
-      <!-- Graphs Tab -->
-      <div id="ledGraphs" class="tab-content">
-        <div class="graph-container">
-          <canvas id="ledCostChart"></canvas>
-        </div>
-        <div class="graph-container">
-          <canvas id="ledCO2Chart"></canvas>
-        </div>
-        <div class="graph-container">
-          <canvas id="ledEfficiencyChart"></canvas>
-        </div>
-        <div class="graph-container">
-          <canvas id="ledProductionChart"></canvas>
-        </div>
-        <div class="graph-container">
-          <canvas id="ledRadarChart"></canvas>
-        </div>
-        <div class="graph-container">
-          <canvas id="ledEnvChart"></canvas>
-        </div>
-      </div>
-      <!-- Parts List Tab -->
-      <div id="ledParts" class="tab-content">
-        <div class="parts-list">
-          <div class="part-item" data-part="ledChip">
-            <strong>LED Chip</strong>
-          </div>
-          <div class="part-details" id="led-details-ledChip">
-            <h3>LED Chip</h3>
-            <p>The LED chip is the core light-emitting component, produced in ultra-clean environments using advanced photolithography and doping techniques.</p>
-            <p><strong>Manufacturing Process:</strong> Involves deposition, patterning, and etching to achieve optimal efficiency and brightness.</p>
-            <p><strong>Function:</strong> Converts electrical energy directly into light with minimal heat production.</p>
-          </div>
-          <div class="part-item" data-part="heatSink">
-            <strong>Heat Sink</strong>
-          </div>
-          <div class="part-details" id="led-details-heatSink">
-            <h3>Heat Sink</h3>
-            <p>Constructed from extruded aluminum, the heat sink dissipates heat away from the LED chip to prevent thermal overload.</p>
-            <p><strong>Manufacturing Process:</strong> Involves extrusion, CNC machining, and surface treatment for maximum thermal conductivity.</p>
-            <p><strong>Function:</strong> Maintains optimal operating temperature for longevity.</p>
-          </div>
-          <div class="part-item" data-part="driver">
-            <strong>LED Driver</strong>
-          </div>
-          <div class="part-details" id="led-details-driver">
-            <h3>LED Driver</h3>
-            <p>The LED driver converts AC power to a stable DC supply and regulates current for the LED chip.</p>
-            <p><strong>Manufacturing Process:</strong> Assembled using SMD components on custom PCBs and rigorously tested for reliability.</p>
-            <p><strong>Function:</strong> Provides constant power to ensure consistent light output.</p>
-          </div>
-          <div class="part-item" data-part="optics">
-            <strong>Optics &amp; Lenses</strong>
-          </div>
-          <div class="part-details" id="led-details-optics">
-            <h3>Optics &amp; Lenses</h3>
-            <p>Custom-molded optics shape and direct the light from the LED chip to provide uniform illumination and reduce glare.</p>
-            <p><strong>Manufacturing Process:</strong> Produced via injection molding and enhanced with optical-grade coatings.</p>
-            <p><strong>Function:</strong> Improves beam quality and enhances overall light distribution.</p>
-          </div>
-          <div class="part-item" data-part="pcb">
-            <strong>Printed Circuit Board (PCB)</strong>
-          </div>
-          <div class="part-details" id="led-details-pcb">
-            <h3>Printed Circuit Board (PCB)</h3>
-            <p>The PCB provides both structural support and electrical connectivity for the LED chip and driver circuit.</p>
-            <p><strong>Manufacturing Process:</strong> Advanced etching and soldering processes ensure robust performance.</p>
-            <p><strong>Function:</strong> Acts as the backbone of the LED module.</p>
-          </div>
-          <div class="part-item" data-part="encapsulation">
-            <strong>Encapsulation Material</strong>
-          </div>
-          <div class="part-details" id="led-details-encapsulation">
-            <h3>Encapsulation Material</h3>
-            <p>This material protects the LED chip from moisture and mechanical stress while enhancing light extraction efficiency.</p>
-            <p><strong>Manufacturing Process:</strong> Applied via potting or injection molding and then cured to achieve clarity and durability.</p>
-            <p><strong>Function:</strong> Increases the overall lifespan of the LED module.</p>
-          </div>
-          <div class="part-item" data-part="thermalInterface">
-            <strong>Thermal Interface Layer</strong>
-          </div>
-          <div class="part-details" id="led-details-thermalInterface">
-            <h3>Thermal Interface Layer</h3>
-            <p>A specialized layer designed to improve heat transfer between the LED chip and the heat sink.</p>
-            <p><strong>Manufacturing Process:</strong> Applied as a thermally conductive paste or film and cured to form a robust bond.</p>
-            <p><strong>Function:</strong> Enhances thermal management and protects the LED chip from overheating.</p>
-          </div>
-          <div class="part-item" data-part="connectors">
-            <strong>Electrical Connectors</strong>
-          </div>
-          <div class="part-details" id="led-details-connectors">
-            <h3>Electrical Connectors</h3>
-            <p>High-quality connectors ensure a secure electrical interface between the LED module and its power source.</p>
-            <p><strong>Manufacturing Process:</strong> Precision stamping, forming, and plating techniques are used to maximize conductivity and durability.</p>
-            <p><strong>Function:</strong> Provides stable and reliable power delivery over the LED’s lifespan.</p>
-          </div>
-          <div class="part-item" data-part="qcReport">
-            <strong>Quality Assurance Report</strong>
-          </div>
-          <div class="part-details" id="led-details-qcReport">
-            <h3>Quality Assurance Report</h3>
-            <p>Each LED module undergoes comprehensive testing for brightness, efficiency, and color consistency before shipment.</p>
-            <p><strong>Manufacturing Process:</strong> Automated test systems capture performance metrics that are analyzed to ensure only top-quality products are released.</p>
-            <p><strong>Function:</strong> Ensures reliability and customer satisfaction.</p>
-          </div>
-        </div>
-      </div>
-      <!-- History Tab -->
-      <div id="ledHistory" class="tab-content">
-        <div class="timeline">
-          <div class="timeline-item left">
-            <h3>1972</h3>
-            <p>In 1972, early research laboratories begin LED development. These first devices, though crude, serve as the foundation for modern LED technology.</p>
-          </div>
-          <div class="timeline-item right">
-            <h3>1984</h3>
-            <p>By 1984, companies such as Nichia achieve breakthroughs in high‑brightness LED production, making the technology viable for general lighting.</p>
-          </div>
-          <div class="timeline-item left">
-            <h3>1993</h3>
-            <p>Improvements in semiconductor fabrication and materials reduce costs and improve the efficiency of LED chips, broadening their application scope.</p>
-          </div>
-          <div class="timeline-item right">
-            <h3>2001</h3>
-            <p>The year 2001 marks the entry of LEDs into the consumer market with smart, energy‑efficient designs that revolutionize residential lighting.</p>
-          </div>
-          <div class="timeline-item left">
-            <h3>2009</h3>
-            <p>By 2009, LED technology becomes mainstream across multiple sectors, celebrated for its long lifespan and superior energy efficiency.</p>
-          </div>
-          <div class="timeline-item right">
-            <h3>2018</h3>
-            <p>In 2018, record efficiencies are achieved, and smart LED lighting systems incorporating IoT technology are introduced, enhancing performance and control.</p>
-          </div>
-          <div class="timeline-item left">
-            <h3>2022</h3>
-            <p>By 2022, continuous innovation pushes LED technology to new performance heights, solidifying its status as the global standard for energy‑efficient lighting.</p>
-          </div>
-        </div>
-      </div>
-      <!-- Description Tab -->
-      <div id="ledDescription" class="tab-content">
-        <div class="description-content">
-          <h2>About LED Bulbs</h2>
-          <p>LED bulbs use semiconductor diodes to convert electricity directly into light. They offer high energy efficiency, immediate full brightness, and long operating lifespans.</p>
-          <p>Their compact design allows for a wide variety of shapes and colors, and they generate very little heat compared to incandescent bulbs.</p>
-          <p>Ongoing research and innovation continue to drive improvements in performance and cost, making LEDs the preferred lighting choice worldwide.</p>
-        </div>
-      </div>
-      <!-- Impact Tab with Dropdowns -->
-      <div id="ledImpact" class="tab-content">
-        <div class="impact-content">
-          <h2>Environmental &amp; Social Impact – LED</h2>
-          <ul class="impact-list">
-            <li data-metric="livesSaved">
-              <details>
-                <summary>Lives saved: 25</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Improved automation and safety protocols have reduced workplace fatalities in LED production.</p>
-                  <canvas id="ledImpact_livesSaved"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="energyPerBulb">
-              <details>
-                <summary>Energy used per bulb: 10 watts</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: LEDs consume far less energy due to their efficient semiconductor processes.</p>
-                  <canvas id="ledImpact_energyPerBulb"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="co2PerUnit">
-              <details>
-                <summary>CO₂ emissions per unit: 0.1 kg</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Low emissions are achieved through optimized energy usage and clean production methods.</p>
-                  <canvas id="ledImpact_co2PerUnit"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="recyclingRate">
-              <details>
-                <summary>Recycling rate: 80%</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: High material recovery rates are maintained in LED manufacturing.</p>
-                  <canvas id="ledImpact_recyclingRate"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="lifecycleCost">
-              <details>
-                <summary>Lifecycle environmental cost: $0.01/unit</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Over its long lifespan, an LED’s cost is minimized through energy savings and durability.</p>
-                  <canvas id="ledImpact_lifecycleCost"></canvas>
-                </div>
-              </details>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
+  <script>
+    /***** Canvas & Global Setup *****/
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    let gameState = "menu";  // "menu", "playing", "gameover"
+    let currentBossIndex = 0;
+    let lastTime = 0;
+    let keys = {};
+    let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+    let isFiring = false;
+    
+    // Arena boundaries.
+    const FLOOR_Y = canvas.height - 100;
+    let arena = { left: -2000, right: 2000, top: -500, bottom: FLOOR_Y };
 
-    <!-- ================== Fluorescent Product ================== -->
-    <div id="fluorescent" class="product-content">
-      <div class="internal-menu">
-        <button class="internal-tab-button active" data-tab="fluMap">Map</button>
-        <button class="internal-tab-button" data-tab="fluGraphs">Graphs</button>
-        <button class="internal-tab-button" data-tab="fluParts">Parts List</button>
-        <button class="internal-tab-button" data-tab="fluHistory">History</button>
-        <button class="internal-tab-button" data-tab="fluDescription">Description</button>
-        <button class="internal-tab-button" data-tab="fluImpact">Impact</button>
-      </div>
-      <!-- Map Tab -->
-      <div id="fluMap" class="tab-content active">
-        <div id="fluMapContainer" class="map-container"></div>
-        <div id="fluFacilityInfo" class="facility-info">
-          <h3>Facility Details</h3>
-          <p>Click a numbered marker on the map to view facility information.</p>
-        </div>
-        <div class="legend">
-          <strong>Map Key</strong>
-          <p><span style="color: darkblue;">●</span> Production Sites</p>
-          <p><span style="color: darkgreen;">●</span> Assembly &amp; R&amp;D Centers</p>
-          <p><span style="color: orange;">●</span> Additional Stops</p>
-        </div>
-      </div>
-      <!-- Graphs Tab -->
-      <div id="fluGraphs" class="tab-content">
-        <div class="graph-container">
-          <canvas id="fluCostChart"></canvas>
-        </div>
-        <div class="graph-container">
-          <canvas id="fluCO2Chart"></canvas>
-        </div>
-        <div class="graph-container">
-          <canvas id="fluEnergyChart"></canvas>
-        </div>
-        <div class="graph-container">
-          <canvas id="fluProductionChart"></canvas>
-        </div>
-        <div class="graph-container">
-          <canvas id="fluRadarChart"></canvas>
-        </div>
-        <div class="graph-container">
-          <canvas id="fluEnvChart"></canvas>
-        </div>
-      </div>
-      <!-- Parts List Tab -->
-      <div id="fluParts" class="tab-content">
-        <div class="parts-list">
-          <div class="part-item" data-part="ballast">
-            <strong>Ballast</strong>
-          </div>
-          <div class="part-details" id="flu-details-ballast">
-            <h3>Ballast</h3>
-            <p>The ballast regulates the current required to start and maintain the fluorescent discharge. It is vital for stabilizing the lamp's operation.</p>
-            <p><strong>Manufacturing Process:</strong> Involves assembling advanced electronic components on a custom PCB with stringent quality control.</p>
-            <p><strong>Function:</strong> Provides a controlled surge and stable current to ensure the lamp ignites and operates efficiently.</p>
-          </div>
-          <div class="part-item" data-part="phosphor">
-            <strong>Phosphor Coating</strong>
-          </div>
-          <div class="part-details" id="flu-details-phosphor">
-            <h3>Phosphor Coating</h3>
-            <p>This coating converts the ultraviolet light produced by mercury discharge into visible light with excellent color quality.</p>
-            <p><strong>Manufacturing Process:</strong> Applied uniformly using chemical processing techniques in a controlled environment.</p>
-            <p><strong>Function:</strong> Enhances light quality and determines the color temperature of the lamp.</p>
-          </div>
-          <div class="part-item" data-part="glassTube">
-            <strong>Glass Tube</strong>
-          </div>
-          <div class="part-details" id="flu-details-glassTube">
-            <h3>Glass Tube</h3>
-            <p>The tube is formed via high‑temperature glass blowing, providing a durable and clear enclosure for the fluorescent process.</p>
-            <p><strong>Manufacturing Process:</strong> Automated molding techniques produce tubes with consistent quality.</p>
-            <p><strong>Function:</strong> Contains mercury vapor and phosphor coating, essential for lamp operation.</p>
-          </div>
-          <div class="part-item" data-part="electrodeFlu">
-            <strong>Electrodes</strong>
-          </div>
-          <div class="part-details" id="flu-details-electrodeFlu">
-            <h3>Electrodes</h3>
-            <p>Electrodes are engineered to withstand high temperatures and initiate the fluorescent discharge.</p>
-            <p><strong>Manufacturing Process:</strong> Constructed from robust materials and rigorously tested for thermal endurance.</p>
-            <p><strong>Function:</strong> Provide the initial electrical surge needed to ignite the mercury vapor discharge.</p>
-          </div>
-          <div class="part-item" data-part="starterFlu">
-            <strong>Starter</strong>
-          </div>
-          <div class="part-details" id="flu-details-starterFlu">
-            <h3>Starter</h3>
-            <p>The starter preheats the electrodes and regulates the initial surge, ensuring a rapid and reliable ignition.</p>
-            <p><strong>Manufacturing Process:</strong> Engineered for consistent performance with minimal energy consumption.</p>
-            <p><strong>Function:</strong> Reduces time to full brightness and enhances lamp longevity.</p>
-          </div>
-          <div class="part-item" data-part="gasFill">
-            <strong>Mercury Gas Fill</strong>
-          </div>
-          <div class="part-details" id="flu-details-gasFill">
-            <h3>Mercury Gas Fill</h3>
-            <p>Low-pressure mercury vapor is introduced into the tube to generate ultraviolet light that is converted by the phosphor coating.</p>
-            <p><strong>Manufacturing Process:</strong> Controlled dosing systems ensure the optimal amount of mercury is used to minimize environmental impact.</p>
-            <p><strong>Function:</strong> Essential for initiating the fluorescent process.</p>
-          </div>
-          <div class="part-item" data-part="pcbFlu">
-            <strong>Electronic Control Circuit</strong>
-          </div>
-          <div class="part-details" id="flu-details-pcbFlu">
-            <h3>Electronic Control Circuit</h3>
-            <p>This circuit continuously monitors and adjusts the electrical parameters to maintain optimal lamp performance.</p>
-            <p><strong>Manufacturing Process:</strong> Assembled with state-of-the-art SMD components and undergoes comprehensive testing.</p>
-            <p><strong>Function:</strong> Ensures safe and efficient operation of the fluorescent lamp.</p>
-          </div>
-        </div>
-      </div>
-      <!-- History Tab -->
-      <div id="fluHistory" class="tab-content">
-        <div class="timeline">
-          <div class="timeline-item left">
-            <h3>1932</h3>
-            <p>In 1932, fluorescent technology is first demonstrated in a laboratory, showcasing its potential as an energy‑efficient alternative to incandescent lighting.</p>
-          </div>
-          <div class="timeline-item right">
-            <h3>1947</h3>
-            <p>By 1947, commercial fluorescent lamps start appearing in industrial settings, driven by breakthroughs in phosphor chemistry and tube manufacturing.</p>
-          </div>
-          <div class="timeline-item left">
-            <h3>1960</h3>
-            <p>In 1960, improvements in glass tube production and electronic ballast development allow fluorescent lamps to be used widely in offices and public spaces.</p>
-          </div>
-          <div class="timeline-item right">
-            <h3>1978</h3>
-            <p>In 1978, Compact Fluorescent Lamps (CFLs) are introduced, combining significant energy savings with improved design for residential applications.</p>
-          </div>
-          <div class="timeline-item left">
-            <h3>1989</h3>
-            <p>By 1989, refinements in phosphor formulations lead to improved color rendering and efficiency, enhancing the appeal of fluorescent lighting.</p>
-          </div>
-          <div class="timeline-item right">
-            <h3>2003</h3>
-            <p>In 2003, manufacturers focus on reducing mercury content and optimizing electronic ballasts, paving the way for safer and more eco-friendly fluorescent lamps.</p>
-          </div>
-          <div class="timeline-item left">
-            <h3>2015</h3>
-            <p>By 2015, advanced ballasts and refined phosphor coatings drive performance improvements in fluorescent technology for niche applications.</p>
-          </div>
-          <div class="timeline-item right">
-            <h3>2020</h3>
-            <p>In 2020, cutting-edge production techniques and stringent quality control ensure that fluorescent lamps meet modern environmental standards while maintaining their unique light quality.</p>
-          </div>
-        </div>
-      </div>
-      <!-- Description Tab -->
-      <div id="fluDescription" class="tab-content">
-        <div class="description-content">
-          <h2>About Fluorescent Bulbs</h2>
-          <p>Fluorescent bulbs work by ionizing mercury vapor to produce ultraviolet light that is converted into visible light by a phosphor coating. This process results in a cooler, more energy‑efficient light compared to incandescents.</p>
-          <p>They are widely used in commercial and institutional settings due to their longevity and efficiency, despite the environmental considerations associated with mercury.</p>
-          <p>Advances in ballast technology and phosphor chemistry have continuously improved their performance and reduced their environmental impact.</p>
-        </div>
-      </div>
-      <!-- Impact Tab with Dropdowns -->
-      <div id="fluImpact" class="tab-content">
-        <div class="impact-content">
-          <h2>Environmental &amp; Social Impact – Fluorescent</h2>
-          <ul class="impact-list">
-            <li data-metric="livesImpacted">
-              <details>
-                <summary>Lives impacted: 5</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Safety improvements and reduced mercury exposure have lessened production hazards.</p>
-                  <canvas id="fluImpact_livesImpacted"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="energyPerBulb">
-              <details>
-                <summary>Energy used per bulb: 30 watts</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Energy consumption is minimized by efficient electronic ballasts and tube designs.</p>
-                  <canvas id="fluImpact_energyPerBulb"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="co2PerUnit">
-              <details>
-                <summary>CO₂ emissions per unit: 0.4 kg</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Emissions reflect efficient production and reduced mercury usage.</p>
-                  <canvas id="fluImpact_co2PerUnit"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="recyclingRate">
-              <details>
-                <summary>Recycling rate: 50%</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Recycling helps mitigate environmental impact by recovering valuable materials.</p>
-                  <canvas id="fluImpact_recyclingRate"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="lifecycleCost">
-              <details>
-                <summary>Lifecycle environmental cost: $0.03/unit</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: This cost covers manufacturing, operation, and disposal phases.</p>
-                  <canvas id="fluImpact_lifecycleCost"></canvas>
-                </div>
-              </details>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
+    /***** Player Object *****/
+    const player = {
+      x: canvas.width / 2,
+      y: FLOOR_Y / 2,
+      vx: 0, vy: 0,
+      hitbox: 12,
+      health: 100,
+      maxHealth: 100,
+      bullets: [],
+      mines: [],
+      shootCooldown: 0,
+      mineCooldown: 0,
+      hitCooldown: 0,
+      flashTimer: 0,
+      weaponBonus: null,
+      bonusTimer: 0,
+      shieldTimer: 0,   
+      speedBonusTimer: 0,
+      ship: 0  // index of currently selected ship
+    };
 
-    <!-- ================== Halogen Product ================== -->
-    <div id="halogen" class="product-content">
-      <div class="internal-menu">
-        <button class="internal-tab-button active" data-tab="halMap">Map</button>
-        <button class="internal-tab-button" data-tab="halGraphs">Graphs</button>
-        <button class="internal-tab-button" data-tab="halParts">Parts List</button>
-        <button class="internal-tab-button" data-tab="halHistory">History</button>
-        <button class="internal-tab-button" data-tab="halDescription">Description</button>
-        <button class="internal-tab-button" data-tab="halImpact">Impact</button>
-      </div>
-      <!-- Map Tab -->
-      <div id="halMap" class="tab-content active">
-        <div id="halMapContainer" class="map-container"></div>
-        <div id="halFacilityInfo" class="facility-info">
-          <h3>Facility Details</h3>
-          <p>Click a numbered marker on the map to view facility details.</p>
-        </div>
-        <div class="legend">
-          <strong>Map Key</strong>
-          <p><span style="color: maroon;">●</span> Halogen Production Sites</p>
-          <p><span style="color: teal;">●</span> Assembly &amp; R&amp;D Centers</p>
-          <p><span style="color: orange;">●</span> Small Stops</p>
-        </div>
-      </div>
-      <!-- Graphs Tab -->
-      <div id="halGraphs" class="tab-content">
-        <div class="graph-container">
-          <canvas id="halCostChart"></canvas>
-        </div>
-        <div class="graph-container">
-          <canvas id="halCO2Chart"></canvas>
-        </div>
-        <div class="graph-container">
-          <canvas id="halEnergyChart"></canvas>
-        </div>
-        <div class="graph-container">
-          <canvas id="halProductionChart"></canvas>
-        </div>
-        <div class="graph-container">
-          <canvas id="halRadarChart"></canvas>
-        </div>
-        <div class="graph-container">
-          <canvas id="halEnvChart"></canvas>
-        </div>
-      </div>
-      <!-- Parts List Tab -->
-      <div id="halParts" class="tab-content">
-        <div class="parts-list">
-          <div class="part-item" data-part="halogenBulb">
-            <strong>Halogen Bulb Assembly</strong>
-          </div>
-          <div class="part-details" id="hal-details-halogenBulb">
-            <h3>Halogen Bulb Assembly</h3>
-            <p>This process integrates a tungsten filament with a halogen gas atmosphere. The halogen gas redeposits tungsten vapor onto the filament, enhancing brightness and extending life.</p>
-            <p><strong>Manufacturing Process:</strong> High‑temperature sealing and precise gas injection ensure the correct concentration and optimal performance.</p>
-            <p><strong>Function:</strong> Maximizes light output and prolongs filament durability.</p>
-          </div>
-          <div class="part-item" data-part="reflector">
-            <strong>Reflector &amp; Coating</strong>
-          </div>
-          <div class="part-details" id="hal-details-reflector">
-            <h3>Reflector &amp; Coating</h3>
-            <p>A reflective coating is applied to the interior of the bulb to maximize light output and focus the beam.</p>
-            <p><strong>Manufacturing Process:</strong> Vapor deposition techniques ensure a uniform, high-quality layer.</p>
-            <p><strong>Function:</strong> Enhances luminous efficacy and color consistency.</p>
-          </div>
-          <div class="part-item" data-part="baseHalogen">
-            <strong>Metal Base</strong>
-          </div>
-          <div class="part-details" id="hal-details-baseHalogen">
-            <h3>Metal Base</h3>
-            <p>The base is manufactured from premium metals to ensure reliable electrical connectivity and efficient heat dissipation.</p>
-            <p><strong>Manufacturing Process:</strong> Precision stamping, machining, and plating produce a durable and corrosion‑resistant component.</p>
-          </div>
-          <div class="part-item" data-part="gasInjection">
-            <strong>Halogen Gas Injection</strong>
-          </div>
-          <div class="part-details" id="hal-details-gasInjection">
-            <h3>Halogen Gas Injection</h3>
-            <p>A precise amount of halogen gas is injected during production to facilitate the redeposition of tungsten.</p>
-            <p><strong>Manufacturing Process:</strong> Automated dosing systems monitor and control the gas concentration with high accuracy.</p>
-            <p><strong>Function:</strong> Critical for extending filament life and maintaining brightness.</p>
-          </div>
-          <div class="part-item" data-part="wiring">
-            <strong>Internal Wiring &amp; Connectors</strong>
-          </div>
-          <div class="part-details" id="hal-details-wiring">
-            <h3>Internal Wiring &amp; Connectors</h3>
-            <p>High-quality wiring and connectors are installed to ensure robust electrical continuity throughout the bulb.</p>
-            <p><strong>Manufacturing Process:</strong> Involves precision assembly and surface plating to enhance conductivity and durability.</p>
-          </div>
-          <div class="part-item" data-part="thermalManagement">
-            <strong>Thermal Management System</strong>
-          </div>
-          <div class="part-details" id="hal-details-thermalManagement">
-            <h3>Thermal Management System</h3>
-            <p>This system utilizes advanced heat-conductive materials to dissipate heat effectively and maintain optimal operating temperatures.</p>
-            <p><strong>Manufacturing Process:</strong> Incorporates materials like heat-conductive ceramics and composites in key areas.</p>
-            <p><strong>Function:</strong> Prevents overheating and ensures long-term performance.</p>
-          </div>
-          <div class="part-item" data-part="assemblyQC">
-            <strong>Assembly &amp; Quality Control</strong>
-          </div>
-          <div class="part-details" id="hal-details-assemblyQC">
-            <h3>Assembly &amp; Quality Control</h3>
-            <p>Every halogen bulb undergoes rigorous assembly and quality testing to ensure that only products meeting strict standards are shipped.</p>
-            <p><strong>Manufacturing Process:</strong> Combines automated testing systems with manual inspections for comprehensive evaluation.</p>
-          </div>
-          <div class="part-item" data-part="logistics">
-            <strong>Packaging &amp; Logistics</strong>
-          </div>
-          <div class="part-details" id="hal-details-logistics">
-            <h3>Packaging &amp; Logistics</h3>
-            <p>State‑of‑the‑art packaging protects bulbs during transit while smart logistics systems ensure efficient global distribution.</p>
-            <p><strong>Manufacturing Process:</strong> Uses eco‑friendly materials and advanced tracking systems.</p>
-          </div>
-        </div>
-      </div>
-      <!-- History Tab -->
-      <div id="halHistory" class="tab-content">
-        <div class="timeline">
-          <div class="timeline-item left">
-            <h3>1968</h3>
-            <p>In 1968, European engineers introduce halogen technology to improve incandescent bulbs by recycling tungsten vapor through a halogen gas process, marking a significant innovation in light bulb design.</p>
-          </div>
-          <div class="timeline-item right">
-            <h3>1974</h3>
-            <p>By 1974, halogen lamps are adopted in automotive lighting, offering brighter, more efficient performance compared to standard incandescents, and setting new industry standards.</p>
-          </div>
-          <div class="timeline-item left">
-            <h3>1980</h3>
-            <p>In 1980, advances in sealing and reflector design by manufacturers in Germany and Italy yield halogen bulbs with significantly improved durability and energy efficiency.</p>
-          </div>
-          <div class="timeline-item right">
-            <h3>1992</h3>
-            <p>In 1992, halogen technology expands into household and commercial markets as production methods become more refined and cost‑effective.</p>
-          </div>
-          <div class="timeline-item left">
-            <h3>2000</h3>
-            <p>By 2000, environmental regulations drive innovation in halogen production, resulting in bulbs that use less energy and are more recyclable, while maintaining their performance.</p>
-          </div>
-          <div class="timeline-item right">
-            <h3>2010</h3>
-            <p>In 2010, advanced materials and manufacturing techniques further optimize halogen performance, significantly reducing their environmental footprint.</p>
-          </div>
-          <div class="timeline-item left">
-            <h3>2021</h3>
-            <p>By 2021, halogen bulbs are refined for niche applications where their unique light quality and rapid response are still valued despite LED dominance in most markets.</p>
-          </div>
-        </div>
-      </div>
-      <!-- Description Tab -->
-      <div id="halDescription" class="tab-content">
-        <div class="description-content">
-          <h2>About Halogen Bulbs</h2>
-          <p>Halogen bulbs are a type of incandescent lamp that incorporate a small amount of halogen gas (usually iodine or bromine). This gas enables the recycling of tungsten vapor onto the filament, which increases brightness and extends its lifespan.</p>
-          <p>They emit a crisp, white light and are commonly used in automotive and specialty lighting applications. Continuous improvements in materials and manufacturing have enhanced their performance while reducing their environmental impact.</p>
-        </div>
-      </div>
-      <!-- Impact Tab with Dropdowns -->
-      <div id="halImpact" class="tab-content">
-        <div class="impact-content">
-          <h2>Environmental &amp; Social Impact – Halogen</h2>
-          <ul class="impact-list">
-            <li data-metric="livesAffected">
-              <details>
-                <summary>Lives affected: 8</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Safety measures in halogen production help reduce risks during high-temperature processes.</p>
-                  <canvas id="halImpact_livesAffected"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="energyPerBulb">
-              <details>
-                <summary>Energy used per bulb: 75 watts</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Energy consumption is spread across assembly, gas injection, and wiring stages.</p>
-                  <canvas id="halImpact_energyPerBulb"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="co2PerUnit">
-              <details>
-                <summary>CO₂ emissions per unit: 1.0 kg</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Emission values reflect improved production efficiencies over time.</p>
-                  <canvas id="halImpact_co2PerUnit"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="recyclingRate">
-              <details>
-                <summary>Recycling rate: 40%</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: Recycling programs target material recovery and waste minimization.</p>
-                  <canvas id="halImpact_recyclingRate"></canvas>
-                </div>
-              </details>
-            </li>
-            <li data-metric="lifecycleCost">
-              <details>
-                <summary>Lifecycle environmental cost: $0.07/unit</summary>
-                <div class="impact-dropdown">
-                  <p>Detailed info: The cumulative environmental cost over production and disposal is carefully calculated.</p>
-                  <canvas id="halImpact_lifecycleCost"></canvas>
-                </div>
-              </details>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
+    // Buffs based on ship selection; each boss unlock gives a unique buff.
+    const shipBuffs = {
+      0: { fireRate: -2, bulletScale: 1.2 },
+      1: { healthBonus: 20 },
+      2: { bulletSpeed: 1.3 },
+      3: { shieldDuration: 120 },
+      4: { spreadBonus: 2 },
+      5: { damageBonus: 1.4 },
+      6: { speedBonus: 0.2 },
+      7: { fireRate: -3 },
+      8: { bulletScale: 1.5 },
+      9: { healthBonus: 30 },
+      // … add for each boss id as needed
+    };
 
-    <!-- ================== Other Tab ================== -->
-    <div id="other" class="product-content">
-      <div class="internal-menu">
-        <button class="internal-tab-button active" data-tab="otherFacts">Facts</button>
-        <button class="internal-tab-button" data-tab="otherMoreBulbs">More Bulbs</button>
-        <button class="internal-tab-button" data-tab="otherCool">Cool Analysis</button>
-        <button class="internal-tab-button" data-tab="otherSources">Sources</button>
-      </div>
-      <!-- Facts Tab -->
-      <div id="otherFacts" class="tab-content other-content active">
-        <h2>Bulb Facts &amp; Resources</h2>
-        <ul>
-          <li><strong>History:</strong> The first practical incandescent bulb was developed by Thomas Edison in the late 19th century, revolutionizing indoor lighting.</li>
-          <li><strong>Energy Efficiency:</strong> Incandescent bulbs produce only 10–17 lm/W, while modern LEDs can exceed 100 lm/W.</li>
-          <li><strong>Longevity:</strong> Fluorescent bulbs last up to 8,000 hours and LEDs up to 25,000 hours or more.</li>
-          <li><strong>Environmental Impact:</strong> Over its lifecycle, an LED produces far fewer greenhouse gas emissions compared to incandescent bulbs.</li>
-          <li><strong>Innovation:</strong> Global phase-outs of incandescents have spurred rapid advancements in energy‑efficient lighting technologies.</li>
-          <li><strong>Recycling:</strong> Many regions offer recycling programs to recover materials from spent fluorescent and LED bulbs.</li>
-          <li><strong>Fun Fact:</strong> “Incandescent” comes from the Latin “incandescere” meaning “to glow,” describing the glowing filament.</li>
-          <li><strong>Tip:</strong> Switching to LED lighting in your home can reduce energy consumption by up to 75% compared to incandescents.</li>
-        </ul>
-      </div>
-      <!-- More Bulbs Tab -->
-      <div id="otherMoreBulbs" class="tab-content other-content">
-        <h2>More Bulbs &amp; Technologies</h2>
-        <p>In addition to incandescent, LED, fluorescent, and halogen bulbs, there are many other types of lighting technologies available:</p>
-        <ul>
-          <li><strong>HID (High-Intensity Discharge) Bulbs:</strong> Commonly used in street lighting and stadiums, these bulbs provide intense light output.</li>
-          <li><strong>CFL (Compact Fluorescent Lamps):</strong> A more energy‑efficient version of traditional fluorescent lighting with a compact design.</li>
-          <li><strong>Plasma and Laser-based Lighting:</strong> Emerging technologies promising even greater efficiency and control.</li>
-          <li><strong>OLED (Organic LED) Lighting:</strong> Offers flexible, thin, and uniform lighting panels that are used in modern displays and ambient lighting.</li>
-        </ul>
-        <p>Explore the visual differences below:</p>
-        <img src="https://via.placeholder.com/800x400?text=HID+Bulb" alt="HID Bulb" style="max-width:100%; border: 2px solid #f39c12; border-radius: 10px; margin-bottom: 20px;">
-        <img src="https://via.placeholder.com/800x400?text=CFL+Bulb" alt="CFL Bulb" style="max-width:100%; border: 2px solid #f39c12; border-radius: 10px;">
-      </div>
-      <!-- Cool Analysis Tab -->
-      <div id="otherCool" class="tab-content other-content">
-        <h2>Cool Analysis: The Future of Lighting</h2>
-        <p>Discover insights into emerging lighting technologies and how they compare to traditional bulbs:</p>
-        <ul>
-          <li>LEDs now offer efficiencies exceeding 100 lm/W.</li>
-          <li>Smart lighting systems integrate IoT for adaptive, energy-saving solutions.</li>
-          <li>Emerging technologies like OLED and laser-based lighting promise even more customization.</li>
-          <li>Human-centric lighting is improving health by aligning with our circadian rhythms.</li>
-        </ul>
-        <canvas id="futureLightingChart" style="max-width:100%;"></canvas>
-        <script>
-          new Chart(document.getElementById('futureLightingChart').getContext('2d'), {
-            type: 'bar',
-            data: {
-              labels: ['LED', 'OLED', 'Laser', 'CFL', 'Incandescent'],
-              datasets: [{
-                label: 'Efficiency (lm/W)',
-                data: [120, 90, 110, 60, 15],
-                backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF']
-              }]
-            },
-            options: { 
-              plugins: { title: { display: true, text: 'Comparative Efficiency of Lighting Technologies' } },
-              scales: { y: { beginAtZero: true, title: { display: true, text: 'Lumens per Watt (lm/W)' } } }
+    const BASE_ACCELERATION = 0.3;
+    const ACCELERATION = () => player.speedBonusTimer > 0 ? BASE_ACCELERATION * 1.5 : BASE_ACCELERATION;
+    const BASE_FRICTION = 0.95;
+    const FRICTION = () => player.speedBonusTimer > 0 ? BASE_FRICTION * 0.97 : BASE_FRICTION;
+
+    /***** Parallax Star Background *****/
+    const parallaxLayers = [];
+    const layersCount = 3;
+    const starsPerLayer = 180;
+    for (let l = 0; l < layersCount; l++) {
+      let layer = [];
+      for (let i = 0; i < starsPerLayer; i++) {
+        layer.push({
+          x: Math.random() * canvas.width * 3 - canvas.width,
+          y: Math.random() * canvas.height * 3 - canvas.height,
+          radius: Math.random() * 1.8 + 0.5,
+          alpha: Math.random() * 0.8 + 0.2
+        });
+      }
+      parallaxLayers.push(layer);
+    }
+
+    /***** Powerup System *****/
+    let bonus = null;
+    let bonusIntervalTimer = 0;
+
+    /***** Boss Names & Global Mode *****/
+    const bossNames = [
+      "Magma Maw", "Frostbite", "Electro Warden", "Shadow Reaver", "Celestial Nova",
+      "Ironclad", "Venom Viper", "Stormbringer", "Blaze Fury", "Abyssal Oracle",
+      "Chrono Shifter", "Smasher", "Arcane Titan", "Lunar Empress", "Solar Sentinel",
+      "Drone Commander", "Gravity Harbinger", "Plasma Overlord", "Biohazard", "Time Warden",
+      "Nebula Serpent", "Cosmic Howler", "Void Reaper", "Galactic Scorcher", "Star Eater",
+      "Quasar Phantom", "Meteor Menace", "Black Hole Baron", "Supernova Spirit", "Aurora Wraith",
+      "Comet Crusher", "Stellar Crusader", "Orbiting Oracle", "Interstellar Marauder", "Celestial Conqueror",
+      "Apocalypse", "Mace Smasher", "Chaos"
+    ];
+    
+    let allBossesMode = false;
+    
+    /***** Boss Class with Enhanced Behaviors *****/
+    class Boss {
+      constructor(index) {
+        this.index = index;
+        this.name = bossNames[index] || "Nameless";
+        this.radius = 50 + (index % 5) * 5;
+        this.hitbox = this.radius;
+        this.health = 250 + index * 25;
+        this.maxHealth = this.health;
+        this.attackTimer = 0;
+        this.movementType = index % 3;
+        this.movementSpeed = (index === 36 || index === 37 ? 0.06 : 0.02 + (index % 4) * 0.005);
+        this.bullets = [];
+        this.drones = [];
+        this.x = canvas.width / 2;
+        this.y = FLOOR_Y - 250;
+        this.rage = false;
+        this.flashTimer = 0;
+        if(index === 36) {
+          this.mace = { angle: 0, length: this.radius + 50, damage: 35 };
+        }
+        if(index === 37) {
+          this.chaosSpawned = false;
+        }
+      }
+    
+      update(playerX, playerY) {
+        this.attackTimer++;
+        this.rage = this.health < this.maxHealth * 0.3;
+        if(this.flashTimer > 0) this.flashTimer--;
+        if(this.index === 11 && this.invisibleTimer > 0) {
+          this.invisibleTimer--;
+        }
+        
+        let speed = this.movementSpeed * (this.rage ? 1.8 : 1);
+        if(this.index === 36 || this.index === 37) {
+          let angle = Math.atan2(playerY - this.y, playerX - this.x);
+          this.x += Math.cos(angle) * speed * 20;
+          this.y += Math.sin(angle) * speed * 20;
+          if(this.index === 36) this.mace.angle += 0.1;
+        } else {
+          if (this.movementType === 0) {
+            let targetX = playerX + (Math.random()-0.5)*120;
+            let targetY = playerY - 180;
+            this.x += (targetX - this.x) * speed;
+            this.y += (targetY - this.y) * speed;
+          } else if (this.movementType === 1) {
+            this.x += Math.sin(this.attackTimer/40) * (3 * (this.rage ? 1.8 : 1));
+            let targetY = playerY - 180;
+            this.y += (targetY - this.y) * (this.movementSpeed/2);
+          } else {
+            this.y += Math.sin(this.attackTimer/90) * (3 * (this.rage ? 1.8 : 1));
+            let targetX = playerX;
+            this.x += (targetX - this.x) * (this.movementSpeed/2);
+          }
+          if(this.x - this.radius < arena.left) this.x = arena.left + this.radius;
+          if(this.x + this.radius > arena.right) this.x = arena.right - this.radius;
+          if(this.y - this.radius < arena.top) this.y = arena.top + this.radius;
+          if(this.y + this.radius > arena.bottom) this.y = arena.bottom - this.radius;
+        }
+    
+        // Update bullets.
+        for (let i = this.bullets.length - 1; i >= 0; i--){
+          let b = this.bullets[i];
+          b.x += b.vx;
+          b.y += b.vy;
+          if(b.type === "sine" || b.type === "liquid") {
+            b.phase = (b.phase || 0) + 0.3;
+            b.y += Math.sin(b.phase) * 2.5;
+          }
+          if(b.grow || b.type === "massive") {
+            b.radius = (b.radius || 6) + 0.08;
+          }
+          if(b.bounce){
+            if(b.x < arena.left || b.x > arena.right) b.vx *= -1;
+            if(b.y < arena.top || b.y > arena.bottom) b.vy *= -1;
+          }
+          if(!b.bounce && (b.x < arena.left || b.x > arena.right || b.y < arena.top || b.y > arena.bottom)){
+            this.bullets.splice(i, 1);
+          }
+          if(b.timer !== undefined) {
+            b.timer--;
+            if(b.timer <= 0) {
+              if(b.type === "star") {
+                this.bullets.push({
+                  x: b.x, y: b.y,
+                  vx: 0, vy: 0,
+                  color: "rgba(100,200,255,0.5)",
+                  bounce: false,
+                  damage: 20,
+                  type: "starExplosion",
+                  slowArea: true,
+                  radius: 50
+                });
+              }
+              if(b.type === "bioMine") {
+                this.bullets.push({
+                  x: b.x, y: b.y,
+                  vx: 0, vy: 0,
+                  color: "lime",
+                  bounce: false,
+                  damage: 35,
+                  type: "mineExplosion",
+                  auraRadius: 50
+                });
+              }
+              this.bullets.splice(i, 1);
+            }
+          }
+          if(b.explodeChain && b.hit) {
+            for(let j = 0; j < 10; j++){
+              this.bullets.push({
+                x: b.x, y: b.y,
+                vx: (Math.random()-0.5)*8,
+                vy: (Math.random()-0.5)*8,
+                color: "#ff9900",
+                bounce: false,
+                damage: 10,
+                type: "chainFragment",
+                radius: 4
+              });
+            }
+            this.bullets.splice(i, 1);
+          }
+        }
+    
+        // Drone behavior for Drone Commander.
+        if(this.index === 15){
+          if(this.drones.length < 3){
+            for(let i = 0; i < 3; i++){
+              this.drones.push({ x: this.x, y: this.y, hp: 20, cooldown: 30 });
+            }
+          }
+          this.drones.forEach(drone => {
+            let angle = Math.atan2(playerY - drone.y, playerX - drone.x);
+            drone.x += Math.cos(angle) * 2.5;
+            drone.y += Math.sin(angle) * 2.5;
+            if(drone.cooldown > 0) drone.cooldown--;
+            else {
+              this.bullets.push({
+                x: drone.x,
+                y: drone.y,
+                vx: Math.cos(angle)*8,
+                vy: Math.sin(angle)*8,
+                color: "#00ffcc",
+                bounce: false,
+                damage: 10,
+                type: "droneBullet",
+                bulletScale: 1.0
+              });
+              drone.cooldown = 60;
             }
           });
-        </script>
-      </div>
-      <!-- Sources Tab -->
-      <div id="otherSources" class="tab-content other-content">
-  <h2>Sources &amp; References</h2>
-  <ul>
-    <li><a href="https://www.energy.gov/energysaver/lighting-choices-save-you-money" target="_blank">U.S. Department of Energy – Lighting Choices Save You Money</a></li>
-    <li><a href="https://www.energystar.gov/products/lighting_fans/light_bulbs" target="_blank">ENERGY STAR – Light Bulbs</a></li>
-    <li><a href="https://www.epa.gov/energy/star-program" target="_blank">U.S. EPA – Energy Star Program</a></li>
-    <li><a href="https://www.iea.org/reports/lighting" target="_blank">International Energy Agency (IEA) – Lighting</a></li>
-    <li><a href="https://www.ies.org/" target="_blank">Illuminating Engineering Society (IES)</a></li>
-    <li><a href="https://www.nrel.gov/led/" target="_blank">National Renewable Energy Laboratory (NREL) – LED Lighting Research</a></li>
-    <li><a href="https://www2.lbl.gov/" target="_blank">Lawrence Berkeley National Laboratory (LBNL) – Lighting Efficiency</a></li>
-    <li><a href="https://www.iec.ch/" target="_blank">International Electrotechnical Commission (IEC) – Standards for Lighting</a></li>
-    <li><a href="https://doi.org/10.1016/j.jclepro.2016.05.134" target="_blank">Journal of Cleaner Production – Life Cycle Assessment of LED Lighting</a></li>
-    <li><a href="https://www.usgbc.org/green-lighting" target="_blank">U.S. Green Building Council (USGBC) – Green Lighting</a></li>
-  </ul>
-  <p>These sources provide detailed and reliable information on the environmental impacts of various lighting technologies, life cycle assessments, energy efficiency standards, and sustainability practices.</p>
-</div>
-
-
-  <!-- ===== SCRIPTS ===== -->
-  <script>
-    // Theme Switcher Function
-    function switchTheme(themeName) {
-      document.body.className = themeName;
-    }
-
-    // Top-Level Product Switcher
-    const productTabs = document.querySelectorAll('.product-tab');
-    const productContents = document.querySelectorAll('.product-content');
-    productTabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        productTabs.forEach(t => t.classList.remove('active'));
-        productContents.forEach(content => content.classList.remove('active'));
-        tab.classList.add('active');
-        document.getElementById(tab.getAttribute('data-product')).classList.add('active');
-      });
-    });
-
-    // Internal Tab Switching Setup
-    function setupInternalTabs(productId) {
-      const container = document.getElementById(productId);
-      const internalTabs = container.querySelectorAll('.internal-tab-button');
-      const tabContents = container.querySelectorAll('.tab-content');
-      internalTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-          internalTabs.forEach(t => t.classList.remove('active'));
-          tabContents.forEach(tc => tc.classList.remove('active'));
-          tab.classList.add('active');
-          container.querySelector('#' + tab.getAttribute('data-tab')).classList.add('active');
-          // If a map tab is activated, adjust its size
-          if(tab.getAttribute('data-tab').toLowerCase().includes("map")){
-            setTimeout(() => {
-              const mapDiv = container.querySelector('.map-container');
-              if(mapDiv && mapInstances[mapDiv.id]) {
-                mapInstances[mapDiv.id].invalidateSize();
+          this.drones = this.drones.filter(d => distance(d.x,d.y,this.x,this.y) < 400);
+        }
+    
+        if(this.attackTimer % 90 === 0) {
+          this.fireAttack( this.rage ? 1.5 : 1 );
+        }
+      }
+    
+      fireAttack(multiplier) {
+        if(this.rage) this.flashTimer = 18;
+        switch(this.index) {
+          case 0: { // Magma Maw
+              let center = Math.atan2(player.y - this.y, player.x - this.x);
+              let spread = 15 * Math.PI/180;
+              for(let i = 0; i < 8; i++){
+                let angle = center - spread/2 + Math.random() * spread;
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: Math.cos(angle)*3 * multiplier,
+                  vy: Math.sin(angle)*3 * multiplier,
+                  color: "orangered",
+                  bounce: false,
+                  damage: 20 * multiplier,
+                  type: "massive",
+                  radius: 12 + (multiplier*0.5),
+                  bulletScale: 1.4
+                });
               }
-            }, 200);
-          }
-        });
-      });
-    }
-    ['incandescent', 'led', 'fluorescent', 'halogen', 'other'].forEach(setupInternalTabs);
-
-    // Parts List Toggle
-    function setupPartsToggle(containerId) {
-      const container = document.getElementById(containerId);
-      const partItems = container.querySelectorAll('.part-item');
-      partItems.forEach(item => {
-        item.addEventListener('click', () => {
-          const part = item.getAttribute('data-part');
-          const prefix = container.id.substring(0,3);
-          const details = document.getElementById(prefix + '-details-' + part);
-          if(details) {
-            details.style.display = details.style.display === 'block' ? 'none' : 'block';
-          }
-        });
-      });
-    }
-    setupPartsToggle('incParts');
-    setupPartsToggle('ledParts');
-    setupPartsToggle('fluParts');
-    setupPartsToggle('halParts');
-
-    // Map Initialization with MarkerCluster
-    const mapInstances = {};
-    function initMap(containerId, markersData, facilityTargetId) {
-      const map = L.map(containerId).setView([20, 0], 2);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 5,
-        attribution: '&copy; OpenStreetMap contributors'
-      }).addTo(map);
-      mapInstances[containerId] = map;
-      const markers = L.markerClusterGroup();
-      markersData.forEach(marker => {
-        const icon = L.divIcon({
-          html: `<div class="custom-div-icon" style="background: ${marker.color};">${marker.order}</div>`,
-          iconSize: [30,30],
-          className: ''
-        });
-        const m = L.marker([marker.lat, marker.lng], { icon: icon });
-        m.bindPopup(marker.info);
-        m.on('click', () => {
-          document.getElementById(facilityTargetId).innerHTML = `
-            <h3>Facility Details (Step ${marker.order})</h3>
-            <p>${marker.info}</p>
-            <img src="https://via.placeholder.com/300x200?text=Facility+Image" alt="Facility Image">
-          `;
-        });
-        markers.addLayer(m);
-      });
-      map.addLayer(markers);
-    }
-    const incMarkersData = [
-      { lat: 34.0522, lng: -118.2437, info: "Incandescent Production in Los Angeles – specializes in tungsten processing.", color: "red", order: 1 },
-      { lat: 51.5074, lng: -0.1278, info: "Incandescent Production in London – precision glass molding.", color: "red", order: 2 },
-      { lat: 35.6895, lng: 139.6917, info: "Incandescent Production in Tokyo – high-efficiency assembly.", color: "red", order: 3 },
-      { lat: 40.7128, lng: -74.0060, info: "Transport Hub in New York – handles logistics and shipping.", color: "blue", order: 4 },
-      { lat: 37.7749, lng: -122.4194, info: "R&D Center in San Francisco – innovates new filament materials.", color: "purple", order: 5 }
-    ];
-    const ledMarkersData = [
-      { lat: 37.5665, lng: 126.9780, info: "LED Production in Seoul – specializes in semiconductor fabrication.", color: "darkred", order: 1 },
-      { lat: 39.9042, lng: 116.4074, info: "LED Production in Beijing – high precision chip manufacturing.", color: "darkred", order: 2 },
-      { lat: 52.5200, lng: 13.4050, info: "Assembly &amp; R&amp;D in Berlin – develops advanced LED modules.", color: "darkgreen", order: 3 },
-      { lat: 34.6937, lng: 135.5023, info: "Quality Control in Osaka – focuses on testing and inspection.", color: "orange", order: 4 }
-    ];
-    const fluMarkersData = [
-      { lat: 40.7128, lng: -74.0060, info: "Fluorescent Production in New York – leading in CFL assembly.", color: "darkblue", order: 1 },
-      { lat: 48.8566, lng: 2.3522, info: "Fluorescent Production in Paris – renowned for phosphor coating.", color: "darkblue", order: 2 },
-      { lat: 35.6895, lng: 139.6917, info: "Fluorescent Production in Tokyo – expert in glass tube molding.", color: "darkblue", order: 3 },
-      { lat: 51.1657, lng: 10.4515, info: "Assembly &amp; R&amp;D in Berlin – innovates electronic ballast design.", color: "darkgreen", order: 4 },
-      { lat: 31.2304, lng: 121.4737, info: "Quality Control in Shanghai – optimizes logistics.", color: "orange", order: 5 }
-    ];
-    const halMarkersData = [
-      { lat: 41.9028, lng: 12.4964, info: "Halogen Production in Rome – specializes in halogen gas injection.", color: "maroon", order: 1 },
-      { lat: 52.5200, lng: 13.4050, info: "Halogen Production in Berlin – advanced sealing methods.", color: "maroon", order: 2 },
-      { lat: 35.6895, lng: 139.6917, info: "Transport Hub in Tokyo – manages global distribution.", color: "teal", order: 3 },
-      { lat: 40.4168, lng: -3.7038, info: "Quality Inspection in Madrid – final quality checks.", color: "orange", order: 4 }
-    ];
-    initMap('incMapContainer', incMarkersData, 'incFacilityInfo');
-    initMap('ledMapContainer', ledMarkersData, 'ledFacilityInfo');
-    initMap('fluMapContainer', fluMarkersData, 'fluFacilityInfo');
-    initMap('halMapContainer', halMarkersData, 'halFacilityInfo');
-
-    // Graphs Initialization (using original sample data)
-    new Chart(document.getElementById('incCostChart').getContext('2d'), {
-      type: 'pie',
-      data: {
-        labels: ['Materials','Manufacturing','Logistics','R&D'],
-        datasets: [{ data: [45,25,20,10], backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4BC0C0'] }]
-      },
-      options: { plugins: { title: { display: true, text: 'Incandescent Cost Distribution' } } }
-    });
-    new Chart(document.getElementById('incCO2Chart').getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: ['Filament','Glass Bulb','Base','Inert Gas','Electrodes','Support'],
-        datasets: [{ data: [80,60,40,20,15,10], backgroundColor: 'rgba(255,99,132,0.6)' }]
-      },
-      options: { plugins: { title: { display: true, text: 'Incandescent CO₂ Emissions (kg)' } }, scales: { y: { beginAtZero: true } } }
-    });
-    new Chart(document.getElementById('incEnergyChart').getContext('2d'), {
-      type: 'line',
-      data: {
-        labels: ['1900','1930','1960','1980','2000','2020'],
-        datasets: [{ label: 'Energy (GWh)', data: [10,50,200,500,800,600], fill: false, borderColor: '#36A2EB', tension: 0.1 }]
-      },
-      options: { plugins: { title: { display: true, text: 'Incandescent Energy Consumption Over Time' } } }
-    });
-    new Chart(document.getElementById('incProductionChart').getContext('2d'), {
-      type: 'line',
-      data: {
-        labels: ['1900','1930','1960','1980','2000','2020'],
-        datasets: [{ label: 'Production (millions)', data: [0.5,5,20,50,70,40], fill: false, borderColor: '#FFCE56', tension: 0.1 }]
-      },
-      options: { plugins: { title: { display: true, text: 'Incandescent Production Over Time' } } }
-    });
-    new Chart(document.getElementById('incRadarChart').getContext('2d'), {
-      type: 'radar',
-      data: {
-        labels: ['Efficiency','Durability','Cost','CO₂','Energy'],
-        datasets: [{ data: [60,70,50,40,80], backgroundColor: 'rgba(75,192,192,0.2)', borderColor: '#4BC0C0' }]
-      },
-      options: { plugins: { title: { display: true, text: 'Incandescent Overall Metrics' } } }
-    });
-    new Chart(document.getElementById('incEnvChart').getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: ['CO₂ per Watt','Water Usage (L)','Waste (kg)','Energy Efficiency Score'],
-        datasets: [{ data: [0.5,120,0.2,60], backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4BC0C0'] }]
-      },
-      options: { plugins: { title: { display: true, text: 'Incandescent Environmental Impact' } }, scales: { y: { beginAtZero: true } } }
-    });
-    
-    new Chart(document.getElementById('ledCostChart').getContext('2d'), {
-      type: 'doughnut',
-      data: {
-        labels: ['Materials','Manufacturing','Logistics','R&D','Innovation'],
-        datasets: [{ data: [35,25,20,10,10], backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF'] }]
-      },
-      options: { plugins: { title: { display: true, text: 'LED Cost Distribution' } } }
-    });
-    new Chart(document.getElementById('ledCO2Chart').getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: ['LED Chip','Heat Sink','Driver','Optics','PCB'],
-        datasets: [{ data: [30,20,25,15,10], backgroundColor: 'rgba(54,162,235,0.6)' }]
-      },
-      options: { plugins: { title: { display: true, text: 'LED CO₂ Emissions (kg)' } }, scales: { y: { beginAtZero: true } } }
-    });
-    new Chart(document.getElementById('ledEfficiencyChart').getContext('2d'), {
-      type: 'line',
-      data: {
-        labels: ['2000','2005','2010','2015','2020'],
-        datasets: [{ label: 'Luminous Efficacy (lm/W)', data: [50,70,90,110,130], fill: false, borderColor: '#4BC0C0', tension: 0.1 }]
-      },
-      options: { plugins: { title: { display: true, text: 'LED Efficiency Over Time' } } }
-    });
-    new Chart(document.getElementById('ledProductionChart').getContext('2d'), {
-      type: 'line',
-      data: {
-        labels: ['1970','1980','1990','2000','2010','2020'],
-        datasets: [{ label: 'Production (millions)', data: [1,3,10,20,40,60], fill: false, borderColor: '#FFCE56', tension: 0.1 }]
-      },
-      options: { plugins: { title: { display: true, text: 'LED Production Over Time' } } }
-    });
-    new Chart(document.getElementById('ledRadarChart').getContext('2d'), {
-      type: 'radar',
-      data: {
-        labels: ['Efficiency','Lifespan','Cost','CO₂','Innovation'],
-        datasets: [{ data: [80,90,40,20,70], backgroundColor: 'rgba(255,206,86,0.2)', borderColor: '#FFCE56' }]
-      },
-      options: { plugins: { title: { display: true, text: 'LED Overall Metrics' } } }
-    });
-    new Chart(document.getElementById('ledEnvChart').getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: ['CO₂ per Watt','Water Usage (L)','Waste (kg)','Energy Efficiency Score'],
-        datasets: [{ data: [0.3,80,0.1,85], backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4BC0C0'] }]
-      },
-      options: { plugins: { title: { display: true, text: 'LED Environmental Impact' } }, scales: { y: { beginAtZero: true } } }
-    });
-    
-    new Chart(document.getElementById('fluCostChart').getContext('2d'), {
-      type: 'pie',
-      data: {
-        labels: ['Materials','Manufacturing','Logistics','R&D'],
-        datasets: [{ data: [40,30,20,10], backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4BC0C0'] }]
-      },
-      options: { plugins: { title: { display: true, text: 'Fluorescent Cost Distribution' } } }
-    });
-    new Chart(document.getElementById('fluCO2Chart').getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: ['Ballast','Phosphor','Glass Tube','Electrodes','Starter'],
-        datasets: [{ data: [50,30,20,15,10], backgroundColor: 'rgba(255,159,64,0.6)' }]
-      },
-      options: { plugins: { title: { display: true, text: 'Fluorescent CO₂ Emissions (kg)' } }, scales: { y: { beginAtZero: true } } }
-    });
-    new Chart(document.getElementById('fluEnergyChart').getContext('2d'), {
-      type: 'line',
-      data: {
-        labels: ['1950','1960','1970','1980','1990','2000','2020'],
-        datasets: [{ label: 'Energy (GWh)', data: [5,15,30,60,80,90,70], fill: false, borderColor: '#36A2EB', tension: 0.1 }]
-      },
-      options: { plugins: { title: { display: true, text: 'Fluorescent Energy Consumption Over Time' } } }
-    });
-    new Chart(document.getElementById('fluProductionChart').getContext('2d'), {
-      type: 'line',
-      data: {
-        labels: ['1932','1947','1960','1978','1989','2003','2015'],
-        datasets: [{ label: 'Production (millions)', data: [2,8,20,35,50,60,55], fill: false, borderColor: '#FFCE56', tension: 0.1 }]
-      },
-      options: { plugins: { title: { display: true, text: 'Fluorescent Production Over Time' } } }
-    });
-    new Chart(document.getElementById('fluRadarChart').getContext('2d'), {
-      type: 'radar',
-      data: {
-        labels: ['Efficiency','Color Accuracy','Cost','CO₂','Energy'],
-        datasets: [{ data: [60,70,50,30,80], backgroundColor: 'rgba(153,102,255,0.2)', borderColor: '#9966FF' }]
-      },
-      options: { plugins: { title: { display: true, text: 'Fluorescent Overall Metrics' } } }
-    });
-    new Chart(document.getElementById('fluEnvChart').getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: ['CO₂ per Watt','Water Usage (L)','Waste (kg)','Energy Efficiency Score'],
-        datasets: [{ data: [0.4,100,0.15,65], backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4BC0C0'] }]
-      },
-      options: { plugins: { title: { display: true, text: 'Fluorescent Environmental Impact' } }, scales: { y: { beginAtZero: true } } }
-    });
-    
-    new Chart(document.getElementById('halCostChart').getContext('2d'), {
-      type: 'pie',
-      data: {
-        labels: ['Materials','Manufacturing','Logistics','R&D'],
-        datasets: [{ data: [50,20,20,10], backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4BC0C0'] }]
-      },
-      options: { plugins: { title: { display: true, text: 'Halogen Cost Distribution' } } }
-    });
-    new Chart(document.getElementById('halCO2Chart').getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: ['Bulb Assembly','Reflector','Base'],
-        datasets: [{ data: [70,40,30], backgroundColor: 'rgba(255,99,132,0.6)' }]
-      },
-      options: { plugins: { title: { display: true, text: 'Halogen CO₂ Emissions (kg)' } }, scales: { y: { beginAtZero: true } } }
-    });
-    new Chart(document.getElementById('halEnergyChart').getContext('2d'), {
-      type: 'line',
-      data: {
-        labels: ['1968','1974','1980','1992','2000','2010','2021'],
-        datasets: [{ label: 'Energy (GWh)', data: [20,45,80,100,90,70,65], fill: false, borderColor: '#36A2EB', tension: 0.1 }]
-      },
-      options: { plugins: { title: { display: true, text: 'Halogen Energy Consumption Over Time' } } }
-    });
-    new Chart(document.getElementById('halProductionChart').getContext('2d'), {
-      type: 'line',
-      data: {
-        labels: ['1968','1974','1980','1992','2000','2010','2021'],
-        datasets: [{ label: 'Production (millions)', data: [1,3,10,20,30,25,22], fill: false, borderColor: '#FFCE56', tension: 0.1 }]
-      },
-      options: { plugins: { title: { display: true, text: 'Halogen Production Over Time' } } }
-    });
-    new Chart(document.getElementById('halRadarChart').getContext('2d'), {
-      type: 'radar',
-      data: {
-        labels: ['Efficiency','Brightness','Cost','CO₂','Lifespan'],
-        datasets: [{ data: [70,80,60,50,70], backgroundColor: 'rgba(255,159,64,0.2)', borderColor: '#FF9F40' }]
-      },
-      options: { plugins: { title: { display: true, text: 'Halogen Overall Metrics' } } }
-    });
-    new Chart(document.getElementById('halEnvChart').getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: ['CO₂ per Watt','Water Usage (L)','Waste (kg)','Energy Efficiency Score'],
-        datasets: [{ data: [0.6,150,0.25,55], backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4BC0C0'] }]
-      },
-      options: { plugins: { title: { display: true, text: 'Halogen Environmental Impact' } }, scales: { y: { beginAtZero: true } } }
-    });
-    
-    // Impact Dropdown Charts Initialization
-    const impactCharts = {};
-    function initImpactChart(product, metric, canvasId) {
-      const ctx = document.getElementById(canvasId).getContext('2d');
-      let config = {};
-      if (product === 'incandescent') {
-        switch(metric) {
-          case 'livesLost':
-            config = {
-              type: 'pie',
-              data: {
-                labels: ['Falls','Electrical','Other'],
-                datasets: [{ data: [50,30,20], backgroundColor: ['#FF6384','#36A2EB','#FFCE56'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Causes of Fatalities' } } }
-            };
-            break;
-          case 'energyPerBulb':
-            config = {
-              type: 'bar',
-              data: {
-                labels: ['Filament','Glass','Base'],
-                datasets: [{ data: [20,15,10], backgroundColor: ['#4BC0C0','#FFCE56','#FF6384'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Energy Distribution per Bulb' } }, scales: { y: { beginAtZero: true } } }
-            };
-            break;
-          case 'co2PerUnit':
-            config = {
-              type: 'line',
-              data: {
-                labels: ['1900','1930','1960','1980','2000','2020'],
-                datasets: [{ label: 'CO₂ (kg)', data: [1.0,0.95,0.9,0.85,0.9,0.8], fill: false, borderColor: '#36A2EB', tension: 0.1 }]
-              },
-              options: { plugins: { title: { display: true, text: 'CO₂ Emissions Trend' } } }
-            };
-            break;
-          case 'waterConsumption':
-            config = {
-              type: 'bar',
-              data: {
-                labels: ['Cooling','Cleaning','Process'],
-                datasets: [{ data: [5,4,6], backgroundColor: ['#FFCE56','#FF6384','#4BC0C0'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Water Usage Breakdown' } }, scales: { y: { beginAtZero: true } } }
-            };
-            break;
-          case 'wasteGenerated':
-            config = {
-              type: 'doughnut',
-              data: {
-                labels: ['Scrap','Defects','By-products'],
-                datasets: [{ data: [60,25,15], backgroundColor: ['#36A2EB','#FF6384','#FFCE56'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Waste Composition' } } }
-            };
-            break;
-          case 'tungstenConsumption':
-            config = {
-              type: 'bar',
-              data: {
-                labels: ['Tungsten Used (kg)'],
-                datasets: [{ data: [0.1], backgroundColor: ['#FFCE56'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Tungsten Consumption' } }, scales: { y: { beginAtZero: true } } }
-            };
-            break;
-          case 'airPollution':
-            config = {
-              type: 'bar',
-              data: {
-                labels: ['Air Pollution Index'],
-                datasets: [{ data: [20], backgroundColor: ['#FF6384'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Air Pollution Index' } }, scales: { y: { beginAtZero: true } } }
-            };
-            break;
-          case 'recyclingRate':
-            config = {
-              type: 'doughnut',
-              data: {
-                labels: ['Recycled','Not Recycled'],
-                datasets: [{ data: [30,70], backgroundColor: ['#36A2EB','#FF6384'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Recycling Rate' } } }
-            };
-            break;
-          case 'lifespan':
-            config = {
-              type: 'bar',
-              data: {
-                labels: ['Average Lifespan (hrs)'],
-                datasets: [{ data: [1200], backgroundColor: ['#4BC0C0'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Average Lifespan' } }, scales: { y: { beginAtZero: true } } }
-            };
-            break;
-          case 'productionCost':
-            config = {
-              type: 'bar',
-              data: {
-                labels: ['Cost ($)'],
-                datasets: [{ data: [0.10], backgroundColor: ['#FFCE56'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Production Energy Cost' } }, scales: { y: { beginAtZero: true } } }
-            };
-            break;
-          case 'carbonFootprint':
-            config = {
-              type: 'line',
-              data: {
-                labels: ['Lifecycle'],
-                datasets: [{ label: 'Carbon Footprint (kg CO₂)', data: [5], fill: false, borderColor: '#36A2EB' }]
-              },
-              options: { plugins: { title: { display: true, text: 'Carbon Footprint per Bulb' } } }
-            };
-            break;
-          case 'resourceDepletion':
-            config = {
-              type: 'bar',
-              data: {
-                labels: ['Resource Depletion Index'],
-                datasets: [{ data: [40], backgroundColor: ['#FF6384'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Resource Depletion Index' } }, scales: { y: { beginAtZero: true } } }
-            };
-            break;
-          case 'hazardousWaste':
-            config = {
-              type: 'doughnut',
-              data: {
-                labels: ['Hazardous Waste','Non-hazardous'],
-                datasets: [{ data: [5,95], backgroundColor: ['#36A2EB','#FF6384'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Hazardous Waste' } } }
-            };
-            break;
-          case 'volatileEmissions':
-            config = {
-              type: 'bar',
-              data: {
-                labels: ['Volatile Emissions (units)'],
-                datasets: [{ data: [3], backgroundColor: ['#FFCE56'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Emission of Volatile Compounds' } }, scales: { y: { beginAtZero: true } } }
-            };
-            break;
-          case 'noise':
-            config = {
-              type: 'bar',
-              data: {
-                labels: ['Noise Level (dB)'],
-                datasets: [{ data: [60], backgroundColor: ['#FF6384'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Noise during Production' } }, scales: { y: { beginAtZero: true } } }
-            };
-            break;
-          case 'workerSafety':
-            config = {
-              type: 'bar',
-              data: {
-                labels: ['Incidents per 100k units'],
-                datasets: [{ data: [1], backgroundColor: ['#36A2EB'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Worker Safety Incidents' } }, scales: { y: { beginAtZero: true } } }
-            };
-            break;
-          case 'energyEfficiency':
-            config = {
-              type: 'bar',
-              data: {
-                labels: ['Luminous Efficacy (lm/W)'],
-                datasets: [{ data: [15], backgroundColor: ['#FFCE56'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Energy Efficiency' } }, scales: { y: { beginAtZero: true } } }
-            };
-            break;
-          case 'globalWarming':
-            config = {
-              type: 'line',
-              data: {
-                labels: ['Lifecycle'],
-                datasets: [{ label: 'Global Warming Potential (CO₂-eq)', data: [80], fill: false, borderColor: '#36A2EB' }]
-              },
-              options: { plugins: { title: { display: true, text: 'Global Warming Potential' } } }
-            };
-            break;
-          case 'pollutionReduction':
-            config = {
-              type: 'doughnut',
-              data: {
-                labels: ['Potential Reduction','Remaining'],
-                datasets: [{ data: [10,90], backgroundColor: ['#36A2EB','#FF6384'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Pollution Reduction Potential' } } }
-            };
-            break;
-          default:
-            return;
-        }
-      } else if (product === 'led') {
-        switch(metric) {
-          case 'livesSaved':
-            config = {
-              type: 'pie',
-              data: {
-                labels: ['Automation','Safety Training','Design Improvements'],
-                datasets: [{ data: [60,25,15], backgroundColor: ['#FF6384','#36A2EB','#FFCE56'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Factors Contributing to Safety' } } }
-            };
-            break;
-          case 'energyPerBulb':
-            config = {
-              type: 'bar',
-              data: {
-                labels: ['Chip','Driver','Cooling'],
-                datasets: [{ data: [3,4,3], backgroundColor: ['#4BC0C0','#FFCE56','#FF6384'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Energy Distribution in LED Production' } }, scales: { y: { beginAtZero: true } } }
-            };
-            break;
-          case 'co2PerUnit':
-            config = {
-              type: 'line',
-              data: {
-                labels: ['2000','2005','2010','2015','2020'],
-                datasets: [{ label: 'CO₂ (kg)', data: [0.1,0.1,0.1,0.1,0.1], fill: false, borderColor: '#36A2EB', tension: 0.1 }]
-              },
-              options: { plugins: { title: { display: true, text: 'CO₂ Emissions Trend' } } }
-            };
-            break;
-          case 'recyclingRate':
-            config = {
-              type: 'doughnut',
-              data: {
-                labels: ['Recycled','Not Recycled'],
-                datasets: [{ data: [80,20], backgroundColor: ['#36A2EB','#FF6384'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Recycling Efficiency' } } }
-            };
-            break;
-          case 'lifecycleCost':
-            config = {
-              type: 'bar',
-              data: {
-                labels: ['Manufacturing','Operation','Disposal'],
-                datasets: [{ data: [0.005,0.003,0.002], backgroundColor: ['#FFCE56','#36A2EB','#FF6384'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Lifecycle Cost Breakdown ($/unit)' } }, scales: { y: { beginAtZero: true } } }
-            };
-            break;
-          default:
-            return;
-        }
-      } else if (product === 'fluorescent') {
-        switch(metric) {
-          case 'livesImpacted':
-            config = {
-              type: 'pie',
-              data: {
-                labels: ['Improved Safety','Reduced Hazard Exposure','Automation'],
-                datasets: [{ data: [50,30,20], backgroundColor: ['#FF6384','#36A2EB','#FFCE56'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Safety Improvements' } } }
-            };
-            break;
-          case 'energyPerBulb':
-            config = {
-              type: 'bar',
-              data: {
-                labels: ['Ballast','Tube','Starter'],
-                datasets: [{ data: [10,12,8], backgroundColor: ['#4BC0C0','#FFCE56','#FF6384'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Energy Distribution in Fluorescent Production' } }, scales: { y: { beginAtZero: true } } }
-            };
-            break;
-          case 'co2PerUnit':
-            config = {
-              type: 'line',
-              data: {
-                labels: ['1932','1947','1960','1978','1989','2003','2015'],
-                datasets: [{ label: 'CO₂ (kg)', data: [0.4,0.4,0.4,0.4,0.4,0.4,0.4], fill: false, borderColor: '#36A2EB', tension: 0.1 }]
-              },
-              options: { plugins: { title: { display: true, text: 'CO₂ Emissions Trend' } } }
-            };
-            break;
-          case 'recyclingRate':
-            config = {
-              type: 'doughnut',
-              data: {
-                labels: ['Recycled','Not Recycled'],
-                datasets: [{ data: [50,50], backgroundColor: ['#36A2EB','#FF6384'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Recycling Efficiency' } } }
-            };
-            break;
-          case 'lifecycleCost':
-            config = {
-              type: 'bar',
-              data: {
-                labels: ['Manufacturing','Operation','Disposal'],
-                datasets: [{ data: [0.05,0.03,0.02], backgroundColor: ['#FFCE56','#36A2EB','#FF6384'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Lifecycle Cost Breakdown ($/unit)' } }, scales: { y: { beginAtZero: true } } }
-            };
-            break;
-          default:
-            return;
-        }
-      } else if (product === 'halogen') {
-        switch(metric) {
-          case 'livesAffected':
-            config = {
-              type: 'pie',
-              data: {
-                labels: ['Process Safety','Material Handling','Equipment Safety'],
-                datasets: [{ data: [40,35,25], backgroundColor: ['#FF6384','#36A2EB','#FFCE56'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Factors Affecting Safety' } } }
-            };
-            break;
-          case 'energyPerBulb':
-            config = {
-              type: 'bar',
-              data: {
-                labels: ['Assembly','Gas Injection','Wiring'],
-                datasets: [{ data: [25,30,20], backgroundColor: ['#4BC0C0','#FFCE56','#FF6384'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Energy Distribution in Halogen Production' } }, scales: { y: { beginAtZero: true } } }
-            };
-            break;
-          case 'co2PerUnit':
-            config = {
-              type: 'line',
-              data: {
-                labels: ['1968','1974','1980','1992','2000','2010','2021'],
-                datasets: [{ label: 'CO₂ (kg)', data: [1.0,1.0,1.0,1.0,1.0,1.0,1.0], fill: false, borderColor: '#36A2EB', tension: 0.1 }]
-              },
-              options: { plugins: { title: { display: true, text: 'CO₂ Emissions Trend' } } }
-            };
-            break;
-          case 'recyclingRate':
-            config = {
-              type: 'doughnut',
-              data: {
-                labels: ['Recycled','Not Recycled'],
-                datasets: [{ data: [40,60], backgroundColor: ['#36A2EB','#FF6384'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Recycling Efficiency' } } }
-            };
-            break;
-          case 'lifecycleCost':
-            config = {
-              type: 'bar',
-              data: {
-                labels: ['Manufacturing','Operation','Disposal'],
-                datasets: [{ data: [0.12,0.05,0.03], backgroundColor: ['#FFCE56','#36A2EB','#FF6384'] }]
-              },
-              options: { plugins: { title: { display: true, text: 'Lifecycle Cost Breakdown ($/unit)' } }, scales: { y: { beginAtZero: true } } }
-            };
-            break;
-          default:
-            return;
+            } break;
+          case 1: { // Frostbite
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              for(let i=0; i<5; i++){
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: Math.cos(angle + (Math.random()-0.5)*0.2) * 6 * multiplier,
+                  vy: Math.sin(angle + (Math.random()-0.5)*0.2) * 6 * multiplier,
+                  color: "cyan",
+                  bounce: false,
+                  damage: 0,
+                  type: "star",
+                  timer: 60,
+                  radius: 8 + Math.random()*4,
+                  bulletScale: 1.2
+                });
+              }
+            } break;
+          case 2: { // Electro Warden
+              if(Math.random() < 0.7){
+                let angle = Math.atan2(player.y - this.y, player.x - this.x);
+                for(let i = 0; i < 4; i++){
+                  let offset = (i-1.5)*0.05;
+                  this.bullets.push({
+                    x: this.x, y: this.y,
+                    vx: Math.cos(angle+offset)*10 * multiplier,
+                    vy: Math.sin(angle+offset)*10 * multiplier,
+                    color: "#ffff77",
+                    bounce: false,
+                    damage: 15 * multiplier,
+                    type: "laser",
+                    thickness: 12,
+                    radius: 10 + multiplier,
+                    bulletScale: 1.3
+                  });
+                }
+              }
+            } break;
+          case 3: { // Shadow Reaver
+              this.invisibleTimer = 300;
+              setTimeout(() => { this.flashTimer = 18; }, 300);
+              let angles = [0, Math.PI/2, Math.PI, 3*Math.PI/2];
+              angles.forEach(angle=>{
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: Math.cos(angle)*8 * multiplier,
+                  vy: Math.sin(angle)*8 * multiplier,
+                  color: (Math.random() < 0.5) ? "#000" : "#fff",
+                  bounce: false,
+                  damage: 18 * multiplier,
+                  type: "flash",
+                  radius: 8,
+                  bulletScale: 1.0
+                });
+              });
+            } break;
+          case 4: { // Celestial Nova
+              let count = 20;
+              for(let i = 0; i < count; i++){
+                let hue = Math.floor(i*(360/count));
+                let rad = Math.random() * 15 + 5;
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: Math.cos(i*(Math.PI*2/count))*8 * multiplier,
+                  vy: Math.sin(i*(Math.PI*2/count))*8 * multiplier,
+                  color: `hsl(${hue},100%,70%)`,
+                  bounce: false,
+                  damage: 10 * multiplier,
+                  type: "flash",
+                  size: rad,
+                  radius: rad,
+                  bulletScale: 1.2
+                });
+              }
+            } break;
+          case 5: { // Ironclad
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              this.bullets.push({
+                x: this.x, y: this.y,
+                vx: Math.cos(angle)*5 * multiplier,
+                vy: Math.sin(angle)*5 * multiplier,
+                color: "#c0c0c0",
+                bounce: false,
+                damage: 50 * multiplier,
+                type: "huge",
+                radius: this.radius * 1.5,
+                bulletScale: 1.5
+              });
+            } break;
+          case 6: { // Venom Viper
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              for(let i = 0; i < 6; i++){
+                let spread = (Math.random()-0.5)*0.3;
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: Math.cos(angle+spread)*9 * multiplier,
+                  vy: Math.sin(angle+spread)*9 * multiplier,
+                  color: "#88ff88",
+                  bounce: false,
+                  damage: 16 * multiplier,
+                  type: "poison",
+                  poison: true,
+                  destroyPlayerBullet: true,
+                  radius: 8,
+                  bulletScale: 1.1
+                });
+              }
+            } break;
+          case 7: { // Stormbringer
+              for(let i = 0; i < 10; i++){
+                let angle = i * (Math.PI*2/10);
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: Math.cos(angle)*6 * multiplier,
+                  vy: Math.sin(angle)*6 * multiplier,
+                  color: "#ccddff",
+                  bounce: true,
+                  damage: 12 * multiplier,
+                  type: "bouncy",
+                  radius: 7 + Math.random()*3,
+                  bulletScale: 1.0
+                });
+              }
+              if(this.lightningTimer === undefined) this.lightningTimer = 1500;
+              this.lightningTimer--;
+              if(this.lightningTimer <= 0){
+                let angle = Math.random()*Math.PI*2;
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: Math.cos(angle)*14,
+                  vy: Math.sin(angle)*14,
+                  color: "#ffff00",
+                  bounce: false,
+                  damage: 40,
+                  type: "lightning",
+                  glow: true,
+                  thickness: 14,
+                  bulletScale: 1.2
+                });
+                this.lightningTimer = 1500;
+              }
+            } break;
+          case 8: { // Blaze Fury
+              let arc = 200 * Math.PI/180;
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              let start = angle - arc/2;
+              let shots = 15;
+              for(let i = 0; i < shots; i++){
+                let a = start + (arc/(shots-1))*i;
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: Math.cos(a)*8 * multiplier,
+                  vy: Math.sin(a)*8 * multiplier,
+                  color: "red",
+                  bounce: false,
+                  damage: 14 * multiplier,
+                  type: "growing",
+                  radius: 6 + i*0.2,
+                  grow: true,
+                  bulletScale: 1.3
+                });
+              }
+            } break;
+          case 9: { // Abyssal Oracle
+              this.x += (Math.random()-0.5)*200;
+              this.y += (Math.random()-0.5)*200;
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              for(let i = 0; i < 8; i++){
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: Math.cos(angle+(Math.random()-0.5)*0.4)*10 * multiplier,
+                  vy: Math.sin(angle+(Math.random()-0.5)*0.4)*10 * multiplier,
+                  color: "purple",
+                  bounce: false,
+                  damage: 20 * multiplier,
+                  type: "shotgun",
+                  radius: 7 + Math.random()*2,
+                  bulletScale: 1.0
+                });
+              }
+            } break;
+          case 10: { // Chrono Shifter
+              let baseSpeed = 4 + Math.random()*4;
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              let turns = 12;
+              for(let i = 0; i < turns; i++){
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: Math.cos(angle + Math.sin(Date.now()/300 + i))*baseSpeed * multiplier,
+                  vy: Math.sin(angle + Math.sin(Date.now()/300 + i))*baseSpeed * multiplier,
+                  color: `hsl(${(Date.now()/10)%360},100%,70%)`,
+                  bounce: false,
+                  damage: 12 * multiplier,
+                  type: "sine",
+                  radius: 6,
+                  bulletScale: 1.1
+                });
+              }
+            } break;
+          case 11: { // Smasher
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              // Fire homing impact shot.
+              this.bullets.push({
+                x: this.x, y: this.y,
+                vx: Math.cos(angle)*12,
+                vy: Math.sin(angle)*12,
+                color: "#444",
+                bounce: false,
+                damage: 20 * multiplier,
+                type: "homingMissile",
+                homing: true,
+                radius: 8,
+                bulletScale: 1.3
+              });
+            } break;
+          case 12: { // Arcane Titan
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              this.bullets.push({
+                x: this.x, y: this.y,
+                vx: Math.cos(angle)*2 * multiplier,
+                vy: Math.sin(angle)*2 * multiplier,
+                color: "#ffaaee",
+                bounce: false,
+                damage: 30 * multiplier,
+                type: "massive",
+                radius: this.radius * 2,
+                bulletScale: 1.5
+              });
+            } break;
+          case 13: { // Lunar Empress
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              for(let i = 0; i < 12; i++){
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: Math.cos(angle+(i-6)*0.03)*10 * multiplier,
+                  vy: Math.sin(angle+(i-6)*0.03)*10 * multiplier,
+                  color: "#cccccc",
+                  bounce: false,
+                  damage: 8 * multiplier,
+                  type: "homing",
+                  homing: true,
+                  radius: 6,
+                  bulletScale: 1.2
+                });
+              }
+            } break;
+          case 14: { // Solar Sentinel
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              for(let i = -1; i <= 1; i++){
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: Math.cos(angle + i*0.1)*9 * multiplier,
+                  vy: Math.sin(angle + i*0.1)*9 * multiplier,
+                  color: "gold",
+                  bounce: false,
+                  damage: 18 * multiplier,
+                  type: "sun",
+                  auraRadius: 30,
+                  bulletScale: 1.3
+                });
+              }
+            } break;
+          case 15: { // Drone Commander
+              if(this.drones.length < 3) {
+                for(let i = 0; i < 3; i++){
+                  this.drones.push({ x: this.x, y: this.y, hp: 20, cooldown: 30 });
+                }
+              }
+              this.drones.forEach(drone => {
+                let angle = Math.atan2(player.y - drone.y, player.x - drone.x);
+                drone.x += Math.cos(angle) * 2;
+                drone.y += Math.sin(angle) * 2;
+                if(drone.cooldown > 0) drone.cooldown--;
+                else {
+                  this.bullets.push({
+                    x: drone.x,
+                    y: drone.y,
+                    vx: Math.cos(angle)*8,
+                    vy: Math.sin(angle)*8,
+                    color: "#00ffcc",
+                    bounce: false,
+                    damage: 10,
+                    type: "droneBullet",
+                    radius: 6,
+                    bulletScale: 1.0
+                  });
+                  drone.cooldown = 60;
+                }
+              });
+              this.drones = this.drones.filter(d => distance(d.x, d.y, this.x, this.y) < 400);
+            } break;
+          case 16: { // gravity harbringer
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              this.bullets.push({
+                x: this.x, y: this.y,
+                vx: Math.cos(angle)*7 * multiplier,
+                vy: Math.sin(angle)*7 * multiplier,
+                color: "#aaffff",
+                bounce: true,
+                damage: 2 * multiplier,
+                type: "grow",
+                radius: 200,
+                bulletScale: 3
+              });
+            } break;
+          case 17: { // Plasma Overlord
+              let arc = 40 * Math.PI/180;
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              let shots = 6;
+              for(let i = 0; i < shots; i++){
+                let a = angle - arc/2 + (arc/(shots-1))*i;
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: Math.tan(a)*9 * multiplier,
+                  vy: Math.sin(a)*9 * multiplier,
+                  color: "#ff66aa",
+                  bounce: false,
+                  damage: 18 * multiplier,
+                  type: "tangent",
+                  radius: 7,
+                  bulletScale: 1.2
+                });
+              }
+            } break;
+          case 18: { // Biohazard
+              this.bullets.push({
+                x: this.x, y: this.y,
+                vx: 0, vy: 0,
+                color: "lime",
+                bounce: false,
+                damage: 0,
+                type: "bioMine",
+                auraRadius: 50,
+                timer: 300,
+                radius: 10,
+                bulletScale: 1.1
+              });
+            } break;
+          case 19: { // Time Warden
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              this.bullets.push({
+                x: this.x, y: this.y,
+                vx: Math.cos(Math.random()*Math.PI*2)*6 * multiplier,
+                vy: Math.sin(Math.random()*Math.PI*2)*6 * multiplier,
+                color: "#cc99ff",
+                bounce: false,
+                damage: 14 * multiplier,
+                type: "time",
+                radius: 7,
+                bulletScale: 1.0
+              });
+            } break;
+          case 20: { // Nebula Serpent
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              this.bullets.push({
+                x: this.x, y: this.y,
+                vx: Math.cos(angle)*8 * multiplier,
+                vy: Math.sin(angle)*8 * multiplier,
+                color: "#66ff66",
+                bounce: false,
+                damage: 14 * multiplier,
+                type: "liquid",
+                radius: 8,
+                bulletScale: 1.1
+              });
+            } break;
+          case 21: { // Cosmic Howler
+              if(Math.random() < 0.3){
+                this.bullets.push({
+                  x: arena.left + Math.random()*(arena.right-arena.left),
+                  y: arena.top + Math.random()*(arena.bottom-arena.top),
+                  vx: 0, vy: 0,
+                  color: "#00ffff",
+                  bounce: false,
+                  damage: 0,
+                  type: "howlerMine",
+                  auraRadius: 20,
+                  radius: 10,
+                  bulletScale: 1.0
+                });
+              }
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              this.bullets.push({
+                x: this.x, y: this.y,
+                vx: Math.cos(angle)*12,
+                vy: Math.sin(angle)*12,
+                color: "#00ffff",
+                bounce: false,
+                damage: 8,
+                type: "rapid",
+                radius: 7,
+                bulletScale: 1.0
+              });
+            } break;
+          case 22: { // Void Reaper
+              if(Math.random() < 0.5){
+                let angle = Math.atan2(player.y - this.y, player.x - this.x);
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: Math.cos(angle)*8 * multiplier,
+                  vy: Math.sin(angle)*8 * multiplier,
+                  color: "#67",
+                  bounce: false,
+                  damage: 180 * multiplier,
+                  type: "homing",
+                  homing: true,
+                  radius: 5,
+                  bulletScale: 1.2
+                });
+              }
+              if(this.deadlyDotTimer === undefined) this.deadlyDotTimer = 420;
+              this.deadlyDotTimer--;
+              if(this.deadlyDotTimer <= 0){
+                this.bullets.push({
+                  x: this.x - 30, y: this.y - 30,
+                  vx: 0, vy: 0,
+                  color: "#000",
+                  bounce: false,
+                  damage: 9999,
+                  type: "deadlyDot",
+                  radius: 20,
+                  bulletScale: 1.3
+                });
+                this.deadlyDotTimer = 420;
+              }
+            } break;
+          case 23: { // Galactic Scorcher
+              let futureX = player.x + player.vx*15;
+              let futureY = player.y + player.vy*15;
+              let angle = Math.atan2(futureY - this.y, futureX - this.x);
+              this.bullets.push({
+                x: this.x, y: this.y,
+                vx: Math.cos(angle)*10 * multiplier,
+                vy: Math.sin(angle)*10 * multiplier,
+                color: "orangered",
+                bounce: false,
+                damage: 20 * multiplier,
+                type: "predictive",
+                radius: 8,
+                bulletScale: 1.2
+              });
+            } break;
+          case 24: { // Star Eater
+              if(Math.random() < 0.4){
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: 0, vy: 0,
+                  color: "#999",
+                  bounce: false,
+                  damage: 0,
+                  type: "suckingMine",
+                  pull: true,
+                  auraRadius: 40,
+                  radius: 10,
+                  bulletScale: 1.1
+                });
+              }
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              for(let i = -1; i <= 1; i += 2){
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: Math.cos(angle+i*0.1)*10 * multiplier,
+                  vy: Math.sin(angle+i*0.1)*10 * multiplier,
+                  color: "#ff44aa",
+                  bounce: false,
+                  damage: 15 * multiplier,
+                  type: "shotgun",
+                  radius: 8,
+                  bulletScale: 1.2
+                });
+              }
+            } break;
+          case 25: { // Quasar Phantom
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              for(let i = 0; i < 20; i++){
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: Math.cos(angle + (Math.random()-0.5)*0.3)*11 * multiplier,
+                  vy: Math.sin(angle + (Math.random()-0.5)*0.3)*11 * multiplier,
+                  color: "rgba(255,0,255,0.5)",
+                  bounce: false,
+                  damage: 8 * multiplier,
+                  type: "transparent",
+                  radius: 6,
+                  bulletScale: 1.0
+                });
+              }
+            } break;
+          case 26: { // Meteor Menace
+              let angle = Math.atan2(player.y - this.y, player.x - this.y);
+              this.bullets.push({
+                x: this.x, y: this.y,
+                vx: Math.cos(angle)*7 * multiplier,
+                vy: Math.sin(angle)*7 * multiplier,
+                color: "#aa5500",
+                bounce: true,
+                damage: 30 * multiplier,
+                type: "ramming",
+                radius: 12,
+                explodeOnHit: true,
+                bulletScale: 1.3
+              });
+            } break;
+          case 27: { // Black Hole Baron
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              this.bullets.push({
+                x: this.x, y: this.y,
+                vx: Math.cos(angle)*5 * multiplier,
+                vy: Math.sin(angle)*5 * multiplier,
+                color: "#444",
+                bounce: false,
+                damage: 18 * multiplier,
+                type: "suction",
+                radius: 10,
+                bulletScale: 1.2
+              });
+              // The pulling force will be applied in the update loop (see below).
+            } break;
+          case 28: { // Supernova Spirit
+              if(this.superBombTimer === undefined) this.superBombTimer = 600;
+              this.superBombTimer--;
+              if(this.superBombTimer <= 0) {
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: 0, vy: 0,
+                  color: "#ffdd00",
+                  bounce: false,
+                  damage: 30,
+                  type: "superBomb",
+                  radius: 40,
+                  clearBullets: true,
+                  bulletScale: 1.3
+                });
+                this.superBombTimer = 600;
+              }
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              this.bullets.push({
+                x: this.x, y: this.y,
+                vx: Math.cos(angle)*8 * multiplier,
+                vy: Math.sin(angle)*8 * multiplier,
+                color: "gold",
+                bounce: false,
+                damage: 18 * multiplier,
+                type: "standard",
+                radius: 8,
+                bulletScale: 1.2
+              });
+            } break;
+          case 29: { // Aurora Wraith
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              for(let i = -2; i <= 2; i++){
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: Math.cos(angle+i*0.08)*9 * multiplier,
+                  vy: Math.sin(angle+i*0.08)*9 * multiplier,
+                  color: "#88ff00",
+                  bounce: false,
+                  damage: 14 * multiplier,
+                  type: "aura",
+                  auraPulse: true,
+                  radius: 8,
+                  bulletScale: 1.2
+                });
+              }
+            } break;
+          case 30: { // Comet Crusher
+              let angle = Math.atan2(player.y - this.y, player.x - this.y);
+              let giant = {
+                x: this.x, y: this.y,
+                vx: Math.cos(angle)*6 * multiplier,
+                vy: Math.sin(angle)*5 * multiplier,
+                color: "#ff8800",
+                bounce: false,
+                damage: 40,
+                type: "giant",
+                radius: 20,
+                explodeChain: true,
+                bulletScale: 1.4
+              };
+              this.bullets.push(giant);
+            } break;
+          case 31: { // Stellar Crusader
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              let missile = {
+                x: this.x, y: this.y,
+                vx: Math.cos(angle)*7 * multiplier,
+                vy: Math.sin(angle)*7 * multiplier,
+                color: "#99ccff",
+                bounce: true,
+                damage: 25 * multiplier,
+                type: "homingMissile",
+                homing: true,
+                explosionRadius: 30,
+                radius: 10,
+                bulletScale: 1.5
+              };
+              this.bullets.push(missile);
+            } break;
+          case 32: { // Orbiting Oracle
+              let baseAngle = Date.now() / 1000;
+              for(let i = 0; i < 6; i++){
+                let orbitAngle = baseAngle + i * (Math.PI*2/6);
+                this.bullets.push({
+                  x: this.x + Math.cos(orbitAngle)*30,
+                  y: this.y + Math.sin(orbitAngle)*30,
+                  vx: Math.cos(orbitAngle)*2 * multiplier,
+                  vy: Math.sin(orbitAngle)*2 * multiplier,
+                  color: "#ff77aa",
+                  bounce: true,
+                  damage: 16 * multiplier,
+                  type: "orbit",
+                  radius: 16,
+                  bulletScale: 1.2
+                });
+              }
+            } break;
+          case 33: { // Interstellar Marauder
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              for(let i = 0; i < 10; i++){
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: Math.cos(angle + (Math.random()-0.5)*0.3)*10 * multiplier,
+                  vy: Math.sin(angle + (Math.random()-0.5)*0.3)*10 * multiplier,
+                  color: `hsl(${Math.random()*360},80%,70%)`,
+                  bounce: false,
+                  damage: 18 * multiplier,
+                  type: "marauder",
+                  radius: 7,
+                  bulletScale: 1.3
+                });
+              }
+            } break;
+          case 34: { // Celestial Conqueror
+              if(this.cloneTimer === undefined) this.cloneTimer = 600;
+              this.cloneTimer--;
+              if(this.cloneTimer <= 0){
+                createClone(this);
+                this.cloneTimer = 600;
+              }
+              let angle = Math.atan2(player.y - this.y, player.x - this.x);
+              this.bullets.push({
+                x: this.x, y: this.y,
+                vx: Math.cos(angle)*9 * multiplier,
+                vy: Math.sin(angle)*9 * multiplier,
+                color: "#cc77ff",
+                bounce: false,
+                damage: 20 * multiplier,
+                type: "bomb",
+                homing: true,
+                radius: 8,
+                bulletScale: 1.3
+              });
+            } break;
+          case 35: { // Apocalypse
+              if(Math.random() < 0.3){
+                let angle = Math.atan2(player.y - this.y, player.x - this.x);
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: Math.cos(angle)*12,
+                  vy: Math.sin(angle)*12,
+                  color: "red",
+                  bounce: true,
+                  damage: 100,
+                  type: "apocalypse",
+		  type: "shotgun",
+                  type: "biomine",
+                  type: "star",
+                  radius: 10,
+                  bulletScale: 1.4
+                });
+              }
+            } break;
+          case 36: { // Mace Smasher
+              if(this.mace) {
+                this.mace.angle += 0.1;
+              }
+              if(this.attackTimer % 120 === 0) {
+                let angle = Math.atan2(player.y - this.y, player.x - this.x);
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: Math.cos(angle)*8,
+                  vy: Math.sin(angle)*8,
+                  color: "#8844ff",
+                  bounce: false,
+                  damage: 50,
+                  type: "shotgun",
+                  radius: 8,
+                  bulletScale: 1.2
+                });
+              }
+            } break;
+          case 37: { // Chaos
+              arena = { left: arena.left*1, right: arena.right*1, top: arena.top*1, bottom: arena.bottom*1 };
+              if(!this.chaosSpawned) {
+                for(let id = 0; id < 36; id++){
+                  spawnAdditionalBoss(id);
+                }
+                this.chaosSpawned = true;
+              }
+              for(let i = 0; i < 15; i++){
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: (Math.random()-0.5)*12,
+                  vy: (Math.random()-0.5)*12,
+                  color: `hsl(${Math.random()*360},100%,70%)`,
+                  bounce: true,
+                  damage: 20,
+                  type: "chaos",
+                  radius: 12,
+                  bulletScale: 2
+                });
+              }
+            } break;
+          default: {
+              for(let i = 0; i < 8; i++){
+                let angle = i * (Math.PI * 2 / 8);
+                this.bullets.push({
+                  x: this.x, y: this.y,
+                  vx: Math.cos(angle)*5 * multiplier,
+                  vy: Math.sin(angle)*5 * multiplier,
+                  color: "#ffffff",
+                  bounce: true,
+                  damage: 10 * multiplier,
+                  type: "grow",
+                  radius: 7,
+                  bulletScale: 1.1
+                });
+              }
+            }
         }
       }
-      if (config && !impactCharts[canvasId]) {
-        impactCharts[canvasId] = new Chart(ctx, config);
+    
+      drawTelegraphLine(tx, ty, color="#fff") {
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 3;
+        ctx.setLineDash([10, 10]);
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(tx, ty);
+        ctx.stroke();
+        ctx.restore();
       }
-    }
-    document.querySelectorAll('.impact-list details').forEach(detail => {
-      detail.addEventListener('toggle', function() {
-        if (this.open) {
-          const li = this.parentElement;
-          const metric = li.getAttribute('data-metric');
-          const impactContainer = this.closest('.impact-content');
-          let product = 'incandescent';
-          if (impactContainer.parentElement.id.startsWith('led')) {
-            product = 'led';
-          } else if (impactContainer.parentElement.id.startsWith('flu')) {
-            product = 'fluorescent';
-          } else if (impactContainer.parentElement.id.startsWith('hal')) {
-            product = 'halogen';
+    
+      draw() {
+        ctx.save();
+        if(this.index === 36) {
+          ctx.translate(this.x, this.y);
+          if(this.flashTimer > 0) {
+            ctx.fillStyle = "rgba(255,255,255,0.9)";
+            ctx.beginPath();
+            ctx.arc(0, 0, this.radius+7, 0, Math.PI*2);
+            ctx.fill();
           }
-          const canvas = this.querySelector('canvas');
-          if (canvas && !canvas.hasAttribute('data-initialized')) {
-            initImpactChart(product, metric, canvas.id);
-            canvas.setAttribute('data-initialized', 'true');
+          ctx.fillStyle = "purple";
+          ctx.beginPath();
+          ctx.arc(0, 0, this.radius, 0, Math.PI*2);
+          ctx.fill();
+          if(this.mace) {
+            ctx.save();
+            ctx.rotate(this.mace.angle);
+            ctx.strokeStyle = "#ff00ff";
+            ctx.lineWidth = 8;
+            ctx.beginPath();
+            ctx.moveTo(this.radius, 0);
+            ctx.lineTo(this.radius + this.mace.length, 0);
+            ctx.stroke();
+            ctx.restore();
+          }
+          ctx.restore();
+        } else if(this.index === 37) {
+          ctx.save();
+          ctx.translate(this.x, this.y);
+          ctx.fillStyle = "black";
+          ctx.beginPath();
+          ctx.arc(0, 0, this.radius, 0, Math.PI*2);
+          ctx.fill();
+          ctx.restore();
+        } else {
+          ctx.translate(this.x, this.y);
+          ctx.rotate((Date.now() % 10000)/10000 * Math.PI*2);
+          switch(this.index) {
+            case 0: drawSpikyPolygon(0, 0, this.radius, 8, 20); break;
+            case 1: drawCrystallinePolygon(0, 0, this.radius, 6); break;
+            case 2: drawZigzagPolygon(0, 0, this.radius, 8); break;
+            case 3: drawWavyPolygon(0, 0, this.radius, 7); break;
+            case 4: drawStar(0, 0, this.radius*0.5, this.radius, 5); break;
+            case 5: drawAngularPolygon(0, 0, this.radius, 6); break;
+            case 6: drawSinuousShape(0, 0, this.radius, 12); break;
+            case 7: drawSwirl(0, 0, this.radius, 4); break;
+            case 8: drawFlameShape(0, 0, this.radius, 6); break;
+            case 9: drawMysteriousShape(0, 0, this.radius, 5); break;
+            case 10: drawSpiralRing(0, 0, this.radius, 3); break;
+            case 11: drawGhostlyShape(0, 0, this.radius, 6); break;
+            case 12: drawRunicPolygon(0, 0, this.radius, 7); break;
+            case 13: drawCrescent(0, 0, this.radius); break;
+            case 14: drawSunburst(0, 0, this.radius, 8); break;
+            case 15: 
+              drawAngularPolygon(0, 0, this.radius, 5);
+              this.drones.forEach(drone => {
+                ctx.save();
+                ctx.fillStyle = "#00ffcc";
+                ctx.beginPath();
+                ctx.arc(drone.x - this.x, drone.y - this.y, 10, 0, Math.PI*2);
+                ctx.fill();
+                ctx.restore();
+              });
+              break;
+            case 16:
+              ctx.fillStyle = "#aaffff";
+              ctx.beginPath();
+              ctx.arc(0, 0, this.radius, 0, Math.PI*2);
+              ctx.fill();
+              break;
+            case 17:
+              ctx.fillStyle = "#ff66aa";
+              ctx.beginPath();
+              ctx.arc(0, 0, this.radius, 0, Math.PI*2);
+              ctx.fill();
+              break;
+            case 18:
+              ctx.fillStyle = "lime";
+              drawWavyPolygon(0, 0, this.radius, 6);
+              break;
+            case 19:
+              ctx.fillStyle = "#cc99ff";
+              drawSpiralRing(0, 0, this.radius, 4);
+              break;
+            case 20: drawSinuousShape(0, 0, this.radius, 10); break;
+            case 21: drawCrystallinePolygon(0, 0, this.radius, 8); break;
+            case 22: drawMysteriousShape(0, 0, this.radius, 7); break;
+            case 23: drawFlameShape(0, 0, this.radius, 7); break;
+            case 24: drawStar(0, 0, this.radius*0.4, this.radius, 6); break;
+            case 25: drawAngularPolygon(0, 0, this.radius, 7); break;
+            case 26: drawZigzagPolygon(0, 0, this.radius, 7); break;
+            case 27: drawRunicPolygon(0, 0, this.radius, 8); break;
+            case 28: drawSwirl(0, 0, this.radius, 5); break;
+            case 29: drawCrystallinePolygon(0, 0, this.radius, 10); break;
+            case 30: drawMysteriousShape(0, 0, this.radius, 6); break;
+            case 31: drawStar(0, 0, this.radius*0.5, this.radius, 7); break;
+            case 32: drawFlameShape(0, 0, this.radius, 8); break;
+            case 33: drawWavyPolygon(0, 0, this.radius, 8); break;
+            case 34: drawRunicPolygon(0, 0, this.radius, 9); break;
+            case 35: 
+              ctx.fillStyle = "darkred";
+              ctx.beginPath();
+              ctx.arc(0, 0, this.radius, 0, Math.PI*2);
+              ctx.fill();
+              break;
+            default:
+              ctx.fillStyle = "#fff";
+              ctx.beginPath();
+              ctx.arc(0, 0, this.radius, 0, Math.PI*2);
+              ctx.fill();
+          }
+          if(this.rage) {
+            ctx.save();
+            let pulse = Math.abs(Math.sin(Date.now()/200)) * 10;
+            ctx.strokeStyle = "red";
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(0, 0, this.radius + pulse, 0, Math.PI*2);
+            ctx.stroke();
+            ctx.restore();
           }
         }
+        ctx.restore();
+    
+        // Draw boss health bar and name.
+        let barWidth = this.radius * 2;
+        let barHeight = 12;
+        ctx.fillStyle = "#333";
+        ctx.fillRect(this.x - this.radius, this.y - this.radius - 50, barWidth, barHeight);
+        ctx.fillStyle = "#f55";
+        ctx.fillRect(this.x - this.radius, this.y - this.radius - 50, barWidth * (this.health / this.maxHealth), barHeight);
+        ctx.strokeStyle = "#fff";
+        ctx.strokeRect(this.x - this.radius, this.y - this.radius - 50, barWidth, barHeight);
+        ctx.font = "16px sans-serif";
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "center";
+        ctx.fillText(this.health + " / " + this.maxHealth, this.x, this.y - this.radius - 55);
+        ctx.font = "18px sans-serif";
+        ctx.fillText(this.name, this.x, this.y - this.radius - 70);
+        ctx.strokeStyle = "rgba(255,255,255,0.3)";
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.hitbox, 0, Math.PI*2);
+        ctx.stroke();
+      }
+    }
+    
+    /***** Utility Function *****/
+    function distance(x1, y1, x2, y2) {
+      return Math.hypot(x2 - x1, y2 - y1);
+    }
+    
+    /***** Global Objects *****/
+    let boss = null;
+    
+    /***** Update Loop *****/
+    function update(delta) {
+      document.body.className = gameState === "playing" ? "playing" : "menu-active";
+    
+      if(gameState === "playing"){
+        if (keys["w"] || keys["ArrowUp"]) player.vy -= ACCELERATION();
+        if (keys["s"] || keys["ArrowDown"]) player.vy += ACCELERATION();
+        if (keys["a"] || keys["ArrowLeft"]) player.vx -= ACCELERATION();
+        if (keys["d"] || keys["ArrowRight"]) player.vx += ACCELERATION();
+        player.vx *= FRICTION();
+        player.vy *= FRICTION();
+        player.x += player.vx;
+        player.y += player.vy;
+    
+        if(player.x - player.hitbox < arena.left){ player.x = arena.left + player.hitbox; player.vx = 0; }
+        if(player.x + player.hitbox > arena.right){ player.x = arena.right - player.hitbox; player.vx = 0; }
+        if(player.y - player.hitbox < arena.top){ player.y = arena.top + player.hitbox; player.vy = 0; }
+        if(player.y + player.hitbox > arena.bottom){ player.y = arena.bottom - player.hitbox; player.vy = 0; }
+        if(player.shootCooldown > 0) player.shootCooldown--;
+        if(player.mineCooldown > 0) player.mineCooldown--;
+        if(player.hitCooldown > 0) player.hitCooldown--;
+        if(player.flashTimer > 0) player.flashTimer--;
+        if(player.bonusTimer > 0) player.bonusTimer--;
+        else player.weaponBonus = null;
+        if(player.shieldTimer > 0) player.shieldTimer--;
+        if(player.speedBonusTimer > 0) player.speedBonusTimer--;
+    
+        if((isFiring || keys[" "]) && player.shootCooldown <= 0){
+          let camX = canvas.width/2 - player.x;
+          let camY = canvas.height/2 - player.y;
+          let worldMouseX = mouse.x - camX;
+          let worldMouseY = mouse.y - camY;
+          let angle = Math.atan2(worldMouseY - player.y, worldMouseX - player.x);
+          let shots = 1, damageMult = 1, bulletSize = 5;
+          if(player.weaponBonus === "double") shots = 2;
+          if(player.weaponBonus === "triple") shots = 3;
+          if(player.weaponBonus === "spread") shots = 5;
+          if(player.weaponBonus === "large") { bulletSize = 8; damageMult = 1.6; }
+          if(player.weaponBonus === "rapid") player.shootCooldown = 8;
+          for(let i = 0; i < shots; i++){
+            let spread = (shots > 1) ? (i - (shots - 1)/2)*0.1 : 0;
+            player.bullets.push({
+              x: player.x,
+              y: player.y,
+              vx: Math.cos(angle+spread) * 10,
+              vy: Math.sin(angle+spread) * 10,
+              size: bulletSize,
+              damage: 6 * damageMult,
+              type: "standard",
+              radius: bulletSize,
+              bulletScale: 1.0
+            });
+          }
+          if(!player.weaponBonus || player.weaponBonus !== "rapid") player.shootCooldown = 15;
+        }
+    
+        for(let i = player.bullets.length - 1; i >= 0; i--){
+          let b = player.bullets[i];
+          b.x += b.vx;
+          b.y += b.vy;
+          if(b.x < arena.left || b.x > arena.right || b.y < arena.top || b.y > arena.bottom){
+            player.bullets.splice(i, 1);
+          }
+        }
+    
+        for(let i = player.mines.length - 1; i >= 0; i--){
+          let m = player.mines[i];
+          if(boss && distance(m.x, m.y, boss.x, boss.y) < boss.hitbox + 20){
+            boss.health -= 35;
+            boss.flashTimer = 12;
+            m.exploded = true;
+            m.timer = 20;
+            player.mines.splice(i, 1);
+            player.flashTimer = 12;
+          }
+        }
+    
+        bonusIntervalTimer++;
+        if(bonusIntervalTimer > 900 && !bonus){
+          let bonusTypes = ["hp", "weapon", "shield", "speed"];
+          bonus = {
+            x: player.x + (Math.random()-0.5)*300,
+            y: player.y + (Math.random()-0.5)*300,
+            type: bonusTypes[Math.floor(Math.random()*bonusTypes.length)],
+            timer: 480
+          };
+          bonusIntervalTimer = 0;
+        }
+        if(bonus) bonus.timer--;
+        if(bonus && bonus.timer <= 0) bonus = null;
+    
+        if(bonus && distance(player.x, player.y, bonus.x, bonus.y) < player.hitbox+15){
+          if(bonus.type === "hp"){
+            player.health = Math.min(player.maxHealth, player.health + 30);
+          } else if(bonus.type === "weapon"){
+            let bonusTypes = ["double", "triple", "rapid", "large", "spread"];
+            player.weaponBonus = bonusTypes[Math.floor(Math.random()*bonusTypes.length)];
+            player.bonusTimer = 480;
+          } else if(bonus.type === "shield"){
+            player.shieldTimer = 480;
+          } else if(bonus.type === "speed"){
+            player.speedBonusTimer = 480;
+          }
+          bonus = null;
+        }
+    
+        if(boss){
+          boss.update(player.x, player.y);
+          boss.bullets.forEach((b, idx) => {
+            let hitRadius = (b.type === "laser") ? (b.thickness || 8) : 7;
+            if(distance(b.x, b.y, player.x, player.y) < player.hitbox + hitRadius){
+              if(player.hitCooldown <= 0){
+                let damage = b.damage || 10;
+                if(player.shieldTimer > 0) damage = 0;
+                player.health -= damage;
+                player.hitCooldown = 60;
+                player.flashTimer = 12;
+              }
+              boss.bullets.splice(idx, 1);
+            }
+          });
+          if(distance(player.x, player.y, boss.x, boss.y) < player.hitbox + boss.hitbox){
+            if(player.hitCooldown <= 0){
+              let dmg = 25;
+              if(player.shieldTimer > 0) dmg = 0;
+              player.health -= dmg;
+              player.hitCooldown = 60;
+              player.flashTimer = 12;
+            }
+          }
+        }
+    
+        if(boss){
+          for(let i = player.bullets.length - 1; i >= 0; i--){
+            let pb = player.bullets[i];
+            if(distance(pb.x, pb.y, boss.x, boss.y) < boss.hitbox){
+              boss.health -= pb.damage || 6;
+              boss.flashTimer = 12;
+              player.bullets.splice(i, 1);
+            }
+          }
+        }
+    
+        // Apply extra effects for Black Hole Baron.
+        if(boss && boss.index === 27){
+          let pullForce = 0.05;
+          let dx = boss.x - player.x, dy = boss.y - player.y;
+          let dist = Math.hypot(dx, dy);
+          if(dist < 300){
+            player.vx += (dx/dist) * pullForce;
+            player.vy += (dy/dist) * pullForce;
+          }
+        }
+    
+        if(player.health <= 0){
+          gameState = "gameover";
+          document.getElementById("retry").style.display = "inline-block";
+          showMenu("Game Over! Try Again?");
+        } else if(boss && boss.health <= 0){
+          let btn = document.querySelector(`#boss-select button[data-boss="${currentBossIndex}"]`);
+          if(btn) {
+            btn.style.background = "#0a0";
+            btn.innerHTML += "<br/><small>Defeated!</small>";
+          }
+          if(typeof unlockedShips === "undefined") unlockedShips = [];
+          if(unlockedShips.indexOf(currentBossIndex) === -1) {
+            unlockedShips.push(currentBossIndex);
+            // Apply ship buff if selected.
+            if(shipBuffs[currentBossIndex]) {
+              Object.assign(player, shipBuffs[currentBossIndex]);
+            }
+          }
+          showShipSelectionMenu();
+    
+          if(allBossesMode) {
+            currentBossIndex++;
+            if(currentBossIndex < bossNames.length) {
+              setTimeout(()=>{ startGame(); }, 1000);
+            } else {
+              gameState = "gameover";
+              document.getElementById("retry").style.display = "inline-block";
+              showMenu("Congratulations! You beat all bosses!");
+              allBossesMode = false;
+            }
+          } else {
+            gameState = "gameover";
+            document.getElementById("retry").style.display = "inline-block";
+            showMenu("Boss Defeated! Pick Another or Retry.");
+          }
+        }
+      }
+    }
+    
+    /***** Draw Loop *****/
+    function draw() {
+      ctx.fillStyle = "#000";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      let camX = canvas.width/2 - player.x;
+      let camY = canvas.height/2 - player.y;
+      parallaxLayers.forEach((layer, index) => {
+        let factor = (index + 1) / layersCount;
+        layer.forEach(star => {
+          let sx = star.x + camX * factor;
+          let sy = star.y + camY * factor;
+          ctx.fillStyle = "rgba(255,255,255," + star.alpha + ")";
+          ctx.beginPath();
+          ctx.arc(sx, sy, star.radius, 0, Math.PI*2);
+          ctx.fill();
+        });
       });
+    
+      ctx.save();
+      ctx.translate(camX, camY);
+      ctx.strokeStyle = "#888";
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(arena.left, arena.top);
+      ctx.lineTo(arena.left, arena.bottom);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(arena.right, arena.top);
+      ctx.lineTo(arena.right, arena.bottom);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(arena.left, arena.top);
+      ctx.lineTo(arena.right, arena.top);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(arena.left, arena.bottom);
+      ctx.lineTo(arena.right, arena.bottom);
+      ctx.stroke();
+      ctx.fillStyle = "#0f0";
+      ctx.beginPath();
+      ctx.arc(player.x, player.y, player.hitbox, 0, Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.3)";
+      ctx.beginPath();
+      ctx.arc(player.x, player.y, player.hitbox, 0, Math.PI*2);
+      ctx.stroke();
+      if(player.flashTimer > 0){
+        ctx.fillStyle = "rgba(255,255,255,0.5)";
+        ctx.beginPath();
+        ctx.arc(player.x, player.y, player.hitbox+10, 0, Math.PI*2);
+        ctx.fill();
+      }
+      player.bullets.forEach(b => {
+        ctx.fillStyle = "#ff0";
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.size || b.radius || 5, 0, Math.PI*2);
+        ctx.fill();
+      });
+      player.mines.forEach(m => {
+        ctx.fillStyle = "#ff55ff";
+        ctx.beginPath();
+        ctx.arc(m.x, m.y, 10, 0, Math.PI*2);
+        ctx.fill();
+      });
+      if(bonus){
+        let bonusColor = bonus.type === "hp" ? "lime" : (bonus.type === "weapon" ? "#00f" : (bonus.type === "shield" ? "#ff0" : "orange"));
+        ctx.fillStyle = bonusColor;
+        ctx.beginPath();
+        ctx.arc(bonus.x, bonus.y, 12, 0, Math.PI*2);
+        ctx.fill();
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+      if(boss){
+        boss.bullets.forEach(b => {
+          if(b.type === "laser"){
+            let grad = ctx.createLinearGradient(b.x, b.y, b.x - b.vx*0.6, b.y - b.vy*0.6);
+            grad.addColorStop(0, b.color);
+            grad.addColorStop(1, "rgba(255,255,255,0)");
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = (b.thickness) ? b.thickness : 6;
+            ctx.beginPath();
+            ctx.moveTo(b.x, b.y);
+            ctx.lineTo(b.x - b.vx*0.6, b.y - b.vy*0.6);
+            ctx.stroke();
+          } else {
+            ctx.fillStyle = b.color;
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, b.radius || 6, 0, Math.PI*2);
+            ctx.fill();
+          }
+        });
+        boss.draw();
+      }
+      ctx.restore();
+    
+      drawCrosshair();
+      drawUI();
+    }
+    
+    function drawUI() {
+      ctx.save();
+      ctx.fillStyle = "#333";
+      ctx.fillRect(20, 20, 240, 24);
+      ctx.fillStyle = "#0f0";
+      ctx.fillRect(20, 20, 240*(player.health/player.maxHealth), 24);
+      ctx.strokeStyle = "#fff";
+      ctx.strokeRect(20, 20, 240, 24);
+      if(boss){
+        let barWidth = 240;
+        ctx.fillStyle = "#333";
+        ctx.fillRect(canvas.width - barWidth - 20, 20, barWidth, 24);
+        ctx.fillStyle = "#f00";
+        ctx.fillRect(canvas.width - barWidth - 20, 20, barWidth*(boss.health/boss.maxHealth), 24);
+        ctx.strokeStyle = "#fff";
+        ctx.strokeRect(canvas.width - barWidth - 20, 20, barWidth, 24);
+      }
+      let infoY = 70;
+      ctx.font = "20px sans-serif";
+      ctx.fillStyle = "#ff0";
+      if(player.weaponBonus) ctx.fillText("Weapon: " + player.weaponBonus.toUpperCase(), 20, infoY);
+      if(player.shieldTimer > 0) ctx.fillText("Shield Active", 20, infoY+25);
+      if(player.speedBonusTimer > 0) ctx.fillText("Speed Boost", 20, infoY+50);
+      ctx.restore();
+    }
+    
+    function drawCrosshair() {
+      ctx.save();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(mouse.x - 12, mouse.y);
+      ctx.lineTo(mouse.x + 12, mouse.y);
+      ctx.moveTo(mouse.x, mouse.y - 12);
+      ctx.lineTo(mouse.x, mouse.y + 12);
+      ctx.stroke();
+      ctx.restore();
+    }
+    
+    /***** Main Game Loop *****/
+    function gameLoop(timestamp) {
+      let delta = timestamp - lastTime;
+      lastTime = timestamp;
+      update(delta);
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+    
+    /***** Start/Reset Game *****/
+    function startGame() {
+      player.x = canvas.width/2;
+      player.y = FLOOR_Y/2;
+      player.vx = 0;
+      player.vy = 0;
+      player.health = player.maxHealth;
+      player.bullets = [];
+      player.mines = [];
+      player.hitCooldown = 0;
+      player.shootCooldown = 0;
+      player.mineCooldown = 0;
+      player.weaponBonus = null;
+      player.bonusTimer = 0;
+      player.shieldTimer = 0;
+      player.speedBonusTimer = 0;
+      bonus = null;
+      bonusIntervalTimer = 0;
+      boss = new Boss(currentBossIndex);
+      boss.x = canvas.width/2;
+      boss.y = FLOOR_Y - 250;
+      gameState = "playing";
+      document.getElementById("menu").style.display = "none";
+    }
+    
+    function showMenu(message = "") {
+      gameState = "menu";
+      document.getElementById("menu").style.display = "flex";
+      if(message !== ""){
+        document.querySelector("#menu h1").textContent = message;
+      } else {
+        document.querySelector("#menu h1").textContent = "Cosmic Boss Fights";
+      }
+    }
+    
+    /***** Ship Selection Menu Functions *****/
+    function showShipSelectionMenu() {
+      const shipList = document.getElementById("ship-list");
+      shipList.innerHTML = "";
+      if(typeof unlockedShips !== "undefined" && unlockedShips.length > 0) {
+        unlockedShips.forEach((id) => {
+          let btn = document.createElement("button");
+          btn.innerHTML = `<canvas id="ship-${id}" width="100" height="100"></canvas><br/><span>Ship ${id}</span>`;
+          btn.onclick = () => {
+            player.ship = id;
+            if(shipBuffs[id]) Object.assign(player, shipBuffs[id]);
+            alert("Ship " + id + " selected with buff: " + JSON.stringify(shipBuffs[id]));
+          };
+          shipList.appendChild(btn);
+          let shipCanvas = document.getElementById("ship-" + id);
+          let shipCtx = shipCanvas.getContext("2d");
+          drawShip(shipCtx, id);
+        });
+      } else {
+        shipList.innerHTML = "<p>No ships unlocked yet.</p>";
+      }
+      document.getElementById("ship-menu").style.display = "flex";
+    }
+    
+    function drawShip(ctx, id) {
+      ctx.clearRect(0,0,100,100);
+      ctx.save();
+      ctx.translate(50,50);
+      if(id % 4 === 0) {
+        ctx.fillStyle = "#ff5555";
+        ctx.beginPath();
+        ctx.moveTo(0, -30);
+        ctx.lineTo(20, 10);
+        ctx.lineTo(-20, 10);
+        ctx.closePath();
+        ctx.fill();
+      } else if(id % 4 === 1) {
+        ctx.fillStyle = "#55ff55";
+        ctx.beginPath();
+        ctx.arc(0,0,25,0,Math.PI*2);
+        ctx.fill();
+      } else if(id % 4 === 2) {
+        ctx.fillStyle = "#5555ff";
+        ctx.beginPath();
+        ctx.rect(-20,-20,40,40);
+        ctx.fill();
+      } else {
+        ctx.fillStyle = "#ffff55";
+        ctx.beginPath();
+        ctx.moveTo(-30, -15);
+        ctx.lineTo(30, -15);
+        ctx.lineTo(0, 30);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+    
+    function spawnAdditionalBoss(id) {
+      if(typeof chaosBosses === "undefined") chaosBosses = [];
+      let extraBoss = new Boss(id);
+      extraBoss.x = Math.random() * (arena.right - arena.left) + arena.left;
+      extraBoss.y = Math.random() * (arena.bottom - arena.top) + arena.top;
+      chaosBosses.push(extraBoss);
+    }
+    
+    /***** Event Listeners *****/
+    window.addEventListener('keydown', (e) => {
+      keys[e.key] = true;
+      if(e.key === " " && gameState === "playing"){
+        // Firing is handled by checking keys in update().
+      }
+      if(e.key.toLowerCase() === "m" && player.mineCooldown <= 0 && gameState === "playing"){
+        player.mines.push({ x: player.x, y: player.y });
+        player.mineCooldown = 50;
+      }
     });
+    window.addEventListener('keyup', (e) => { keys[e.key] = false; });
+    canvas.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+    canvas.addEventListener('mousedown', (e) => { isFiring = true; });
+    canvas.addEventListener('mouseup', (e) => { isFiring = false; });
+    
+    document.getElementById("boss-select").addEventListener('click', (e) => {
+      if(e.target.tagName === "BUTTON" || e.target.parentElement.tagName === "BUTTON"){
+        let btn = e.target.tagName === "BUTTON" ? e.target : e.target.parentElement;
+        currentBossIndex = parseInt(btn.getAttribute("data-boss"));
+        allBossesMode = false;
+        document.getElementById("retry").style.display = "none";
+        startGame();
+      }
+    });
+    document.getElementById("playAll").addEventListener('click', () => {
+      allBossesMode = true;
+      currentBossIndex = 0;
+      document.getElementById("retry").style.display = "none";
+      startGame();
+    });
+    document.getElementById("retry").addEventListener('click', () => {
+      document.getElementById("retry").style.display = "none";
+      startGame();
+    });
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+    
+    document.getElementById("close-ship-menu").addEventListener('click', () => {
+      document.getElementById("ship-menu").style.display = "none";
+    });
+    
+    requestAnimationFrame(gameLoop);
+    
+    /***** Drawing Helper Functions *****/
+    function drawSpikyPolygon(x, y, radius, spikes, spikeLength) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.beginPath();
+      for (let i = 0; i < spikes; i++) {
+        let angle = i * (Math.PI * 2 / spikes);
+        ctx.lineTo(Math.cos(angle) * (radius + spikeLength), Math.sin(angle) * (radius + spikeLength));
+        angle += Math.PI / spikes;
+        ctx.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+      }
+      ctx.closePath();
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+      ctx.restore();
+    }
+    
+    function drawCrystallinePolygon(x, y, radius, sides) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.beginPath();
+      for (let i = 0; i <= sides; i++) {
+        let angle = i * 2 * Math.PI / sides;
+        ctx.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+    }
+    
+    function drawZigzagPolygon(x, y, radius, segments) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.beginPath();
+      for (let i = 0; i < segments; i++) {
+        let angle = i / segments * 2 * Math.PI;
+        let offset = (i % 2 === 0) ? radius : radius * 0.75;
+        ctx.lineTo(Math.cos(angle) * offset, Math.sin(angle) * offset);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+    }
+    
+    function drawWavyPolygon(x, y, radius, points) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.beginPath();
+      for(let i = 0; i < points; i++){
+        let angle = i * (Math.PI*2/points);
+        let r = radius + Math.sin(i * 3) * 7;
+        ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+    }
+    
+    function drawStar(x, y, innerRadius, outerRadius, points) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.beginPath();
+      for (let i = 0; i < 2 * points; i++) {
+        let r = (i % 2 === 0 ? outerRadius : innerRadius);
+        let angle = i * Math.PI / points;
+        ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
+      }
+      ctx.closePath();
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+      ctx.restore();
+    }
+    
+    function drawAngularPolygon(x, y, radius, sides) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.beginPath();
+      for (let i = 0; i < sides; i++) {
+        let angle = i * 2 * Math.PI / sides;
+        ctx.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.restore();
+    }
+    
+    function drawSinuousShape(x, y, radius, points) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.beginPath();
+      for (let i = 0; i < points; i++) {
+        let angle = i * 2 * Math.PI / points;
+        let offset = radius + Math.sin(angle * 3) * 7;
+        ctx.lineTo(Math.cos(angle) * offset, Math.sin(angle) * offset);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+    }
+    
+    function drawSwirl(x, y, radius, turns) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.beginPath();
+      for (let i = 0; i < 100; i++) {
+        let angle = i * (Math.PI * 2 / 100) * turns;
+        let r = radius * (i / 100);
+        ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
+      }
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+    }
+    
+    function drawFlameShape(x, y, radius, points) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.beginPath();
+      for (let i = 0; i < points; i++) {
+        let angle = i * 2 * Math.PI / points;
+        let offset = radius + Math.random() * 7;
+        ctx.lineTo(Math.cos(angle) * offset, Math.sin(angle) * offset);
+      }
+      ctx.closePath();
+      ctx.fillStyle = "orange";
+      ctx.fill();
+      ctx.restore();
+    }
+    
+    function drawMysteriousShape(x, y, radius, sides) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.beginPath();
+      for (let i = 0; i < sides; i++) {
+        let angle = i * 2 * Math.PI / sides;
+        let offset = radius + (Math.random() - 0.5) * 12;
+        ctx.lineTo(Math.cos(angle) * offset, Math.sin(angle) * offset);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+    }
+    
+    function drawGhostlyShape(x, y, radius, sides) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.beginPath();
+      for (let i = 0; i < sides; i++) {
+        let angle = i * 2 * Math.PI / sides;
+        ctx.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = "rgba(200,200,255,0.8)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+    }
+    
+    function drawSpiralRing(x, y, radius, segments) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.beginPath();
+      for (let i = 0; i < segments; i++) {
+        let angle = i * (Math.PI * 2 / segments);
+        ctx.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+    }
+    
+    function drawRunicPolygon(x, y, radius, sides) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.beginPath();
+      for (let i = 0; i < sides; i++) {
+        let angle = i * 2 * Math.PI / sides;
+        let offset = radius + (Math.random() - 0.5) * 7;
+        ctx.lineTo(Math.cos(angle) * offset, Math.sin(angle) * offset);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.restore();
+    }
+    
+    function drawCrescent(x, y, radius) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.beginPath();
+      ctx.arc(0, 0, radius, Math.PI * 0.2, Math.PI * 1.8);
+      ctx.arc(10, 0, radius, Math.PI * 1.2, Math.PI * 0.2, true);
+      ctx.closePath();
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+      ctx.restore();
+    }
+    
+    function drawSunburst(x, y, radius, rays) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.beginPath();
+      for (let i = 0; i < rays; i++) {
+        let angle = i * 2 * Math.PI / rays;
+        ctx.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+        angle += Math.PI / rays;
+        ctx.lineTo(Math.cos(angle) * (radius * 1.4), Math.sin(angle) * (radius * 1.4));
+      }
+      ctx.closePath();
+      ctx.fillStyle = "yellow";
+      ctx.fill();
+      ctx.restore();
+    }
   </script>
 </body>
 </html>
